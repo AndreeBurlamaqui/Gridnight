@@ -2,11 +2,15 @@ using UnityEngine;
 
 public class DropModule : EntityModule
 {
-    [SerializeField] private DropTable[] tables;
+    [SerializeField] private GameObject[] options;
 
     public void Drop()
     {
-        var randomDrop = tables.RandomContent().GetRandomOption();
+        var randomDrop = options.RandomContent();
+        if(randomDrop == null)
+        {
+            return;
+        }
 
         // Spawn in a valid position around
         if(WorldGrid.Instance.TryGetValidPositionAround(transform.position, out var validPos))
@@ -14,11 +18,4 @@ public class DropModule : EntityModule
             Instantiate(randomDrop, validPos, Quaternion.identity);
         }
     }
-}
-
-public struct DropTable
-{
-    [SerializeField] private GameObject[] options;
-
-    public GameObject GetRandomOption() => options.RandomContent();
 }
