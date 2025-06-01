@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43b91e6def41bc141804985c7c05ea14, type: 3}
   m_Name: Rock
   m_EditorClassIdentifier: 
+  <Icon>k__BackingField: {fileID: 402605497, guid: ed4edcc13cc60764181cc25a7679faf6, type: 3}
   <Title>k__BackingField: Rock
   <Description>k__BackingField: 
   <StartAmount>k__BackingField: 0
