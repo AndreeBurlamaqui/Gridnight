@@ -72,4 +72,13 @@ public class BaseEntity : MonoBehaviour
         }
         attachedModules.Remove(targetType);
     }
+
+    public virtual void Hit(BaseEntity otherEntity)
+    {
+        Debug.Log($"Entity {gameObject.name} touched {otherEntity.name}");
+        if(otherEntity.TryGetModule(out HealthModule health))
+        {
+            health.DamageBy(1);
+        }
+    }
 }

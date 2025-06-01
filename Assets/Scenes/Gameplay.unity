@@ -151,6 +151,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <StartHP>k__BackingField: 3
   <CurrentHP>k__BackingField: 0
+  OnDeath:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &366118136
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -486,7 +489,7 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
-  m_SpriteSortPoint: 1
+  m_SpriteSortPoint: 0
 --- !u!1 &841367266
 GameObject:
   m_ObjectHideFlags: 0
@@ -549,6 +552,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <StartHP>k__BackingField: 10
   <CurrentHP>k__BackingField: 0
+  OnDeath:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &841367270
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -845,7 +851,7 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
-  m_SpriteSortPoint: 1
+  m_SpriteSortPoint: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

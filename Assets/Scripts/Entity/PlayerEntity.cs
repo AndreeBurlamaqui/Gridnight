@@ -33,7 +33,7 @@ public class PlayerEntity : BaseEntity
                 break;
         }
 
-        Debug.Log("On move input " + ctx.phase);
+        //Debug.Log("On move input " + ctx.phase);
         moveDirection = holdingMove ? ctx.ReadValue<Vector2>() : Vector2.zero;
     }
 

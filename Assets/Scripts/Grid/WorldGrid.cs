@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -39,29 +40,55 @@ public class WorldGrid : MonoBehaviour
     {
         var gridPos = WorldToGrid(worldPos);
         SetEntityPosition(entity, gridPos);
+
+        if(entity.TryGetModule(out HealthModule health))
+        {
+            health.OnDeath.AddListener(OnEntityDeath);
+        }
+    }
+
+    private void OnEntityDeath(HealthModule healthEntity)
+    {
+        // Unsubscribe then remove from grid
+        Debug.Log($"Entity {healthEntity.gameObject.name} is dead, removing from grid");
+        healthEntity.OnDeath.RemoveListener(OnEntityDeath);
+        var gridPos = WorldToGrid(healthEntity.transform.position);
+        entitiesGrid.SetValue(gridPos.x, gridPos.y, null);
     }
 
     public void RequestMove(BaseEntity entity, Vector2 direction)
     {
         if (!IsInitiated || direction == Vector2.zero)
         {
+            // Missconfig
             return;
         }
 
         if (!entity.TryGetModule(out MovementModule movement) || !movement.CanJump)
         {
+            // Entity can't move
             return;
         }
 
         if (!entitiesGrid.TryGetPosition(entity, out int x, out int y))
         {
+            // Entity is not in grid
             return;
         }
+
         var curGrid = new Vector2(x, y);
         var nextGrid = direction.normalized + curGrid;
-        if (!entitiesGrid.IsPositionFilled((int)nextGrid.x, (int)nextGrid.y))
+        if (entitiesGrid.TryGetValue((int)nextGrid.x, (int)nextGrid.y, out var otherEntity))
         {
-            Debug.Log($"Entity {entity.gameObject.name} is on {curGrid} requesting to move towards {direction} -> {nextGrid}");
+            // Notify entity that it's touching something
+            entity.Hit(otherEntity);
+
+            movement.HitMove(GridToWorldCentered(nextGrid));
+        }
+        else
+        {
+            // Free space, can move
+            //Debug.Log($"Entity {entity.gameObject.name} is on {curGrid} requesting to move towards {direction} -> {nextGrid}");
             SetEntityPosition(entity, nextGrid);
         }
     }
@@ -69,12 +96,12 @@ public class WorldGrid : MonoBehaviour
     private void SetEntityPosition(BaseEntity entity, Vector2 targetGrid)
     {
         var nextGrid = entitiesGrid.SetValue((int)targetGrid.x, (int)targetGrid.y, entity);
-        var worldPos = GridToWorld(nextGrid) + (0.5f * cellSize * Vector2.one);
+        var worldPos = GridToWorldCentered(nextGrid);
         if (entity.TryGetModule(out MovementModule movement))
         {
             if (movement.CanJump)
             {
-                movement.Move(worldPos);
+                movement.FreeMove(worldPos);
 
             }
         }
@@ -92,6 +119,11 @@ public class WorldGrid : MonoBehaviour
         Vector3 localPos = new Vector3(x * cellSize, y * cellSize);
         return transform.position - halfSize + localPos + (0.5f * cellSize * Vector3.one);
     }
+
+    /// <summary>
+    /// World position but centered to the cell size
+    /// </summary>
+    public Vector2 GridToWorldCentered(Vector2 nextGrid) => GridToWorld(nextGrid) + (0.5f * cellSize * Vector2.one);
 
     public Vector2Int WorldToGrid(Vector3 worldPos)
     {
