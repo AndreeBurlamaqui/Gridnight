@@ -105,19 +105,100 @@ public class BaseGrid<T>
     /// <param name="index"></param>
     /// <param name="width"></param>
     /// <returns></returns>
-    public (int x, int y) IndexToGrid(int index)
+    public (int x, int y) IndexToGrid(int index, UnityEngine.UI.GridLayoutGroup layout)
     {
-        int x = index % Width;
-        int y = index / Width;
+        int x = 0;
+        int y = 0;
+
+        switch (layout.constraint)
+        {
+            case UnityEngine.UI.GridLayoutGroup.Constraint.FixedColumnCount:
+                x = index % layout.constraintCount;
+                y = index / layout.constraintCount;
+                break;
+            case UnityEngine.UI.GridLayoutGroup.Constraint.FixedRowCount:
+                x = index / layout.constraintCount;
+                y = index % layout.constraintCount;
+                break;
+            default:
+                // Handle Flexible constraint if necessary
+                break;
+        }
+
+        // Adjust based on startCorner
+        switch (layout.startCorner)
+        {
+            case UnityEngine.UI.GridLayoutGroup.Corner.UpperLeft:
+                // No adjustment needed
+                break;
+            case UnityEngine.UI.GridLayoutGroup.Corner.UpperRight:
+                x = layout.constraintCount - 1 - x;
+                break;
+            case UnityEngine.UI.GridLayoutGroup.Corner.LowerLeft:
+                y = layout.constraintCount - 1 - y;
+                break;
+            case UnityEngine.UI.GridLayoutGroup.Corner.LowerRight:
+                x = layout.constraintCount - 1 - x;
+                y = layout.constraintCount - 1 - y;
+                break;
+        }
+
         return (x, y);
     }
 
-    
+
     /// <summary>
     /// Convert the grid to a list index
     /// </summary>
-    public int GridToIndex(int x, int y)
+    public int GridToIndex(int x, int y, UnityEngine.UI.GridLayoutGroup layout)
     {
-        return y * Width + x;
+        int index = 0;
+        int constraintCount = layout.constraintCount;
+
+        switch (layout.constraint)
+        {
+            case UnityEngine.UI.GridLayoutGroup.Constraint.FixedColumnCount:
+                switch (layout.startCorner)
+                {
+                    case UnityEngine.UI.GridLayoutGroup.Corner.UpperLeft:
+                        index = y * constraintCount + x;
+                        break;
+                    case UnityEngine.UI.GridLayoutGroup.Corner.UpperRight:
+                        index = y * constraintCount + (constraintCount - 1 - x);
+                        break;
+                    case UnityEngine.UI.GridLayoutGroup.Corner.LowerLeft:
+                        index = (layout.transform.childCount / constraintCount - 1 - y) * constraintCount + x;
+                        break;
+                    case UnityEngine.UI.GridLayoutGroup.Corner.LowerRight:
+                        index = (layout.transform.childCount / constraintCount - 1 - y) * constraintCount + (constraintCount - 1 - x);
+                        break;
+                }
+                break;
+
+            case UnityEngine.UI.GridLayoutGroup.Constraint.FixedRowCount:
+                switch (layout.startCorner)
+                {
+                    case UnityEngine.UI.GridLayoutGroup.Corner.UpperLeft:
+                        index = x * constraintCount + y;
+                        break;
+                    case UnityEngine.UI.GridLayoutGroup.Corner.UpperRight:
+                        index = (layout.transform.childCount / constraintCount - 1 - x) * constraintCount + y;
+                        break;
+                    case UnityEngine.UI.GridLayoutGroup.Corner.LowerLeft:
+                        index = x * constraintCount + (constraintCount - 1 - y);
+                        break;
+                    case UnityEngine.UI.GridLayoutGroup.Corner.LowerRight:
+                        index = (layout.transform.childCount / constraintCount - 1 - x) * constraintCount + (constraintCount - 1 - y);
+                        break;
+                }
+                break;
+
+            default:
+                // Handle Flexible constraint if necessary
+                break;
+        }
+
+        return index;
     }
+
 }

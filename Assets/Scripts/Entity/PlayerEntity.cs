@@ -12,6 +12,7 @@ public class PlayerEntity : BaseEntity
     {
         base.Initiate();
         SetPossibleInteraction(null);
+        playerInput.Initiate();
         Debug.Log("Initiating player");
     }
 

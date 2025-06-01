@@ -8,6 +8,7 @@ public class InventoryPanelUI : BasePanelUI
     [SerializeField] private GridLayoutGroup layout;
     [SerializeField] private SelectGrid<ItemSO> itemGrid;
     [SerializeField] private InventorySlotUI slotUI;
+    [SerializeField] private InputReader playerInput;
 
     InventorySO inventory;
     List<InventorySlotUI> slots = new();
@@ -23,6 +24,18 @@ public class InventoryPanelUI : BasePanelUI
     private void OnEnable()
     {
         Refresh();
+
+        if(itemGrid != null)
+        {
+            itemGrid.Select(0, 0);
+        }
+
+        playerInput.OnNavigate += NavigateSelection;
+    }
+
+    private void OnDisable()
+    {
+        playerInput.OnNavigate -= NavigateSelection;
     }
 
     private void SetupInventory(InventorySO inventorySO)
@@ -46,8 +59,10 @@ public class InventoryPanelUI : BasePanelUI
 
     private void UpdateSlotSelect((Vector2Int oldSelect, Vector2Int newSelect) selectUpdate)
     {
-        slots[itemGrid.GridToIndex(selectUpdate.oldSelect.x, selectUpdate.oldSelect.y)].SetSelect(false);
-        slots[itemGrid.GridToIndex(selectUpdate.newSelect.x, selectUpdate.newSelect.y)].SetSelect(true);
+        var oldIndex = itemGrid.GridToIndex(selectUpdate.oldSelect.x, selectUpdate.oldSelect.y, layout);
+        slots[oldIndex].SetSelect(false);
+        var newIndex = itemGrid.GridToIndex(selectUpdate.newSelect.x, selectUpdate.newSelect.y, layout);
+        slots[newIndex].SetSelect(true);
     }
 
     private void Refresh()
@@ -62,11 +77,23 @@ public class InventoryPanelUI : BasePanelUI
             var itemSlot = s < inventory.items.Count ? inventory.items[s] : null;
 
             // Set it to the slot UI
-            slots[s].Setup(itemSlot);
+            var slot = slots[s];
+            slot.Setup(itemSlot);
 
             // Set the item on the grid
-            (int x, int y) = itemGrid.IndexToGrid(s);
+            (int x, int y) = itemGrid.IndexToGrid(s, layout);
             itemGrid.SetValue(x, y, itemSlot);
+            slot.gameObject.name = $"Slot [{x},{y}]";
         }
+    }
+
+    private void NavigateSelection(Vector2Int direction)
+    {
+        if(itemGrid == null || inventory == null)
+        {
+            return;
+        }
+
+        itemGrid.SelectTowards(direction);
     }
 }

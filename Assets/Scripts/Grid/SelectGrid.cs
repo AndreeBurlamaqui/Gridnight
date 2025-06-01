@@ -3,25 +3,33 @@ using UnityEngine;
 
 public class SelectGrid<T> : BaseGrid<T>
 {
-    private Vector2Int curSelected;
+    public Vector2Int CurrentSelected { get; private set; }
 
     public event Action<(Vector2Int oldSelect, Vector2Int newSelect)> OnSelectChange;
 
     public SelectGrid(int _width, int _height) : base(_width, _height, 1)
     {
-        curSelected = Vector2Int.zero;
+        CurrentSelected = Vector2Int.zero;
     }
 
     public void SelectTowards(Vector2 direction)
     {
-        var newSelect = curSelected + direction.normalized;
-        Select((int)newSelect.x, (int)newSelect.y);
+        int newX = Mathf.Clamp(CurrentSelected.x + (int)direction.x, 0, Width - 1);
+        int newY = Mathf.Clamp(CurrentSelected.y + ((int)direction.y * -1), 0, Height - 1);
+
+        Select(newX, newY);
     }
 
     public void Select(int x, int y)
     {
         var newSelect = new Vector2Int(x, y);
-        OnSelectChange?.Invoke((curSelected, newSelect));
-        curSelected = newSelect;
+        if (newSelect == CurrentSelected)
+        {
+            return;
+        }
+
+        Debug.Log($"Selecting grid " + newSelect);
+        OnSelectChange?.Invoke((CurrentSelected, newSelect));
+        CurrentSelected = newSelect;
     }
 }
