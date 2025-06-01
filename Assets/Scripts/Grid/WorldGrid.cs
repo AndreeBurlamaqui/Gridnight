@@ -52,8 +52,14 @@ public class WorldGrid : MonoBehaviour
         // Unsubscribe then remove from grid
         Debug.Log($"Entity {healthEntity.gameObject.name} is dead, removing from grid");
         healthEntity.OnDeath.RemoveListener(OnEntityDeath);
-        var gridPos = WorldToGrid(healthEntity.transform.position);
-        entitiesGrid.SetValue(gridPos.x, gridPos.y, null);
+        if(entitiesGrid.TryGetPosition(healthEntity.Entity, out int oldX, out int oldY))
+        {
+            entitiesGrid.SetValue(oldX, oldY, null);
+        }
+        else
+        {
+            Debug.LogWarning($"Entity {healthEntity.gameObject.name} was not in the grid. Can't remove");
+        }
     }
 
     public void RequestMove(BaseEntity entity, Vector2 direction)
