@@ -6,6 +6,7 @@ using UnityEngine.UIElements;
 [CreateAssetMenu(fileName = "ItemSO", menuName = "Scriptable Objects/ItemSO")]
 public class ItemSO : ScriptableObject
 {
+    [field: SerializeField] public Sprite Icon { get; private set; }
     [field: SerializeField] public string Title { get; private set; }
     [field: SerializeField, TextArea(2, 4)] public string Description { get; private set; }
     [field: SerializeField] public int StartAmount { get; private set; }

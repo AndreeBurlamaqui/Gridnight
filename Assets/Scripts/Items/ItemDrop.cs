@@ -15,7 +15,7 @@ public class ItemDrop : MonoBehaviour
             return;
         }
 
-        if (other.CompareTag("Player"))
+        if (other.CompareTag(PlayerEntity.PLAYER_TAG))
         {
             collected = true;
             Debug.Log($"Player starting to collect {item.Title}({item.TotalAmount})");
