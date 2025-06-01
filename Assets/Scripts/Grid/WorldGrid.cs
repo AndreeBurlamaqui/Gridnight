@@ -139,6 +139,35 @@ public class WorldGrid : MonoBehaviour
         return new(x, y);
     }
 
+    public bool TryGetValidPositionAround(Vector3 worldPos, out Vector3 validPos)
+    {
+        var gridPos = WorldToGrid(worldPos);
+        if (!entitiesGrid.IsPositionFilled(gridPos.x, gridPos.y))
+        {
+            // We can use this one
+            validPos = worldPos;
+            return true;
+        }
+
+        int directionsEnumLength = TinyUtils.GetEnumLength<TinyUtils.EightDirections>();
+        var randomOrder = Randomizer.CreateRandomOrder(directionsEnumLength, true);
+        for (int d = 0; d < randomOrder.Length; d++)
+        {
+            var directionToCheck = (TinyUtils.EightDirections)randomOrder[d];
+            var checkPos = gridPos + directionToCheck.ToVector2();
+            if (entitiesGrid.IsPositionFilled((int)checkPos.x, (int)checkPos.y))
+            {
+                continue;
+            }
+
+            validPos = checkPos;
+            return true;
+        }
+
+        validPos = Vector3.zero;
+        return false;
+    }
+
 
     private void OnDrawGizmos()
     {
