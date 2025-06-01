@@ -3,7 +3,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-[CreateAssetMenu(fileName = "ItemSO", menuName = "Scriptable Objects/ItemSO")]
+[CreateAssetMenu(fileName = "ItemSO", menuName = "Scriptable Objects/Items/Resource")]
 public class ItemSO : ScriptableObject
 {
     [field: SerializeField] public Sprite Icon { get; private set; }

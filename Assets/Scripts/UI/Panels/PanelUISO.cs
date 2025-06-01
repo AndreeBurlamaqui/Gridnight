@@ -3,6 +3,7 @@ using UnityEngine;
 public abstract class PanelUISO : ScriptableObject
 {
     private BasePanelUI uiPanel;
+    public bool IsOnFocus { get; private set; }
 
     public virtual void AssignPanel(BasePanelUI panel)
     {
@@ -17,6 +18,7 @@ public abstract class PanelUISO : ScriptableObject
         }
 
         uiPanel.SetState(true);
+        SetFocus(true);
     }
 
     public void Close()
@@ -27,6 +29,7 @@ public abstract class PanelUISO : ScriptableObject
         }
 
         uiPanel.SetState(false);
+        SetFocus(false);
     }
 
     public void SwitchState()
@@ -44,5 +47,20 @@ public abstract class PanelUISO : ScriptableObject
         {
             Open();
         }
+    }
+
+    public void SetFocus(bool state)
+    {
+        if(uiPanel == null)
+        {
+            return;
+        }
+
+        IsOnFocus = state;
+    }
+
+    public T GetPanel<T>() where T : BasePanelUI
+    {
+        return uiPanel as T;
     }
 }

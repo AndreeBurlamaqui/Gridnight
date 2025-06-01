@@ -86,6 +86,7 @@ public class InventoryPanelUI : BasePanelUI
         {
             // Set it to the slot UI
             var slot = slots[s];
+            slot.SetInteractable(true);
             var gridIndex = itemGrid.IndexToGrid(s, layout);
             if (itemGrid.TryGetValue(gridIndex.x, gridIndex.y, out var itemSlot))
             {
@@ -105,6 +106,11 @@ public class InventoryPanelUI : BasePanelUI
             return;
         }
 
+        if (!panelSO.IsOnFocus)
+        {
+            return;
+        }
+
         itemGrid.SelectTowards(direction);
         if (PickManager.Instance.IsPicking)
         {
@@ -115,6 +121,11 @@ public class InventoryPanelUI : BasePanelUI
 
     private void PickSelection()
     {
+        if (!panelSO.IsOnFocus)
+        {
+            return;
+        }
+
         if (PickManager.Instance.IsPicking)
         {
             PickManager.Instance.Drop();
