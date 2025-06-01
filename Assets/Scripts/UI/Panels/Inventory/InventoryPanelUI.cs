@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class InventoryPanelUI : BasePanelUI
 {
     [SerializeField] private GridLayoutGroup layout;
-    [SerializeField] private BaseGrid<ItemSO> itemGrid;
+    [SerializeField] private SelectGrid<ItemSO> itemGrid;
     [SerializeField] private InventorySlotUI slotUI;
 
     InventorySO inventory;
@@ -30,7 +30,8 @@ public class InventoryPanelUI : BasePanelUI
         inventory = inventorySO;
 
         // Setup grid
-        itemGrid = new BaseGrid<ItemSO>(2, 4, 1);
+        itemGrid = new(2, 4);
+        itemGrid.OnSelectChange += UpdateSlotSelect;
         for (int i = 0; i < itemGrid.Width * itemGrid.Height; i++)
         {
             // Get slot UI and item if any
@@ -38,9 +39,16 @@ public class InventoryPanelUI : BasePanelUI
             slots.Add(newSlot);
         }
 
+        // Refresh and select first option
         Refresh();
+        itemGrid.Select(0, 0);
     }
 
+    private void UpdateSlotSelect((Vector2Int oldSelect, Vector2Int newSelect) selectUpdate)
+    {
+        slots[itemGrid.GridToIndex(selectUpdate.oldSelect.x, selectUpdate.oldSelect.y)].SetSelect(false);
+        slots[itemGrid.GridToIndex(selectUpdate.newSelect.x, selectUpdate.newSelect.y)].SetSelect(true);
+    }
 
     private void Refresh()
     {
@@ -57,8 +65,7 @@ public class InventoryPanelUI : BasePanelUI
             slots[s].Setup(itemSlot);
 
             // Set the item on the grid
-            int x = s % itemGrid.Width;
-            int y = s / itemGrid.Width;
+            (int x, int y) = itemGrid.IndexToGrid(s);
             itemGrid.SetValue(x, y, itemSlot);
         }
     }

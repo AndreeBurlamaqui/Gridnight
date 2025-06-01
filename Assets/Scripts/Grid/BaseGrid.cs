@@ -97,4 +97,27 @@ public class BaseGrid<T>
     }
 
     private bool IsNull(T result) => Equals(result, default(T));
+
+
+    /// <summary>
+    /// Convert list index to the grid position
+    /// </summary>
+    /// <param name="index"></param>
+    /// <param name="width"></param>
+    /// <returns></returns>
+    public (int x, int y) IndexToGrid(int index)
+    {
+        int x = index % Width;
+        int y = index / Width;
+        return (x, y);
+    }
+
+    
+    /// <summary>
+    /// Convert the grid to a list index
+    /// </summary>
+    public int GridToIndex(int x, int y)
+    {
+        return y * Width + x;
+    }
 }
