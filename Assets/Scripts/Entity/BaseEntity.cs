@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.EventSystems.EventTrigger;
 
 public class BaseEntity : MonoBehaviour
 {
@@ -23,7 +24,8 @@ public class BaseEntity : MonoBehaviour
 
     protected virtual void Initiate()
     {
-
+        // Fix the position of this entity on initiate
+        WorldGrid.Instance.Spawn(this, transform.position);
     }
 
     protected virtual void Terminate()

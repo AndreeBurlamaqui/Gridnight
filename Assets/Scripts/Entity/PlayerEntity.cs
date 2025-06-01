@@ -10,8 +10,6 @@ public class PlayerEntity : BaseEntity
     {
         base.Initiate();
         Debug.Log("Initiating player");
-        var origin = WorldGrid.Instance.Origin;
-        WorldGrid.Instance.Spawn(this, origin.x, origin.y);
     }
 
     public void OnMoveInput(CallbackContext ctx)
