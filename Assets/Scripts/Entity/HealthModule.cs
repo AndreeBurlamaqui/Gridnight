@@ -24,12 +24,17 @@ public class HealthModule : EntityModule
     public void DamageBy(int dmg)
     {
         DOTween.Kill(DamageTweenID);
-        transform.DOShakeRotation(0.15f, strength: 5).SetId(DamageTweenID);
-        CurrentHP -= dmg;
+        transform.DOShakeRotation(0.15f, 55, 25, randomnessMode: ShakeRandomnessMode.Harmonic)
+            .OnComplete(OnFinishTween)
+            .SetId(DamageTweenID);
 
-        if(CurrentHP <= 0)
-        {
-            Kill();
+        void OnFinishTween(){
+            CurrentHP -= dmg;
+
+            if (CurrentHP <= 0)
+            {
+                Kill();
+            }
         }
     }
 
