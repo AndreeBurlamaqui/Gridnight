@@ -7,7 +7,7 @@ using UnityEngine.Pool;
 /// <summary>
 /// Bunch of random utilities, growing by each project
 /// </summary>
-public static class HopscotchUtils
+public static class TinyUtils
 {
     public enum FourDirections
     {
@@ -20,6 +20,26 @@ public static class HopscotchUtils
         TOP_LEFT, TOP_CENTER, TOP_RIGHT,
         MIDDLE_LEFT, MIDDLE_CENTER, MIDDLE_RIGHT,
         BOTTOM_LEFT, BOTTOM_CENTER, BOTTOM_RIGHT
+    }
+
+    public static Vector2 ToVector2(this EightDirections direction)
+    {
+        return direction switch
+        {
+            EightDirections.TOP_LEFT => new Vector2(-1, 1),
+            EightDirections.TOP_CENTER => new Vector2(0, 1),
+            EightDirections.TOP_RIGHT => new Vector2(1, 1),
+
+            EightDirections.MIDDLE_LEFT => new Vector2(-1, 0),
+            EightDirections.MIDDLE_CENTER => Vector2.zero,
+            EightDirections.MIDDLE_RIGHT => new Vector2(1, 0),
+
+            EightDirections.BOTTOM_LEFT => new Vector2(-1, -1),
+            EightDirections.BOTTOM_CENTER => new Vector2(0, -1),
+            EightDirections.BOTTOM_RIGHT => new Vector2(1, -1),
+
+            _ => Vector2.zero
+        };
     }
 
 
