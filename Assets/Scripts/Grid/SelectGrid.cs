@@ -32,4 +32,9 @@ public class SelectGrid<T> : BaseGrid<T>
         OnSelectChange?.Invoke((CurrentSelected, newSelect));
         CurrentSelected = newSelect;
     }
+
+    public int SelectedToIndex(UnityEngine.UI.GridLayoutGroup layout) => GridToIndex(CurrentSelected.x, CurrentSelected.y, layout);
+    public bool IsSelectedFilled() => IsPositionFilled(CurrentSelected.x, CurrentSelected.y);
+    public bool TryGetSelectedValue(out T value) => TryGetValue(CurrentSelected.x, CurrentSelected.y, out value);
+    public void SetSelectedValue(T value) => SetValue(CurrentSelected.x, CurrentSelected.y, value);
 }

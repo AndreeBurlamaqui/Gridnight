@@ -43,7 +43,7 @@ public class BaseGrid<T>
         else
         {
             // Removing value
-            Debug.Log("Removing value from grid " + x + "/"+ y);
+            //Debug.Log("Removing value from grid " + x + "/"+ y);
             T oldValue = gridArray[x, y];
             if (!IsNull(oldValue))
             {

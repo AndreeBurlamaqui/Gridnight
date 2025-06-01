@@ -20,6 +20,7 @@ public class InputReader : ScriptableObject
 
     // EVENTS
     public event Action<Vector2Int> OnNavigate;
+    public event Action OnInteract;
 
     public void Initiate()
     {
@@ -72,20 +73,26 @@ public class InputReader : ScriptableObject
 
     public void OnInteractInput(CallbackContext ctx)
     {
-        if (inputType != MapType.GAMEPLAY)
+        if (!ctx.performed)
         {
             return;
         }
 
-        if (curInteractOption == null)
+        switch (inputType)
         {
-            return;
+            case MapType.GAMEPLAY:
+                if(curInteractOption != null)
+                {
+                    curInteractOption.Interact();
+                }
+                break;
+
+            case MapType.UI:
+                break;
         }
 
-        if (ctx.performed)
-        {
-            curInteractOption.Interact();
-        }
+        Debug.Log("Interact");
+        OnInteract?.Invoke();
     }
 
     public void OnNavigateInput(CallbackContext ctx)
