@@ -38,14 +38,20 @@ public class WaveManager : MonoBehaviour
 
     [Header("ENVIRONMENT")]
     [SerializeField] private RuleTile pathTile;
-    [SerializeField] private BaseEntity[] resources;
+    [SerializeField] private SpawnableItem[] spawnableItems;
+    [System.Serializable]
+    public class SpawnableItem
+    {
+        public BaseEntity entityPrefab;
+        public ItemSO representedItem;
+    }
 
     public int MaximumPossibleFoods => possibleFoods.Length;
 
     Dictionary<ItemSO, (int amountRequired, int amountAchieved)> curWaveRequirements = new();
     private int curWave;
     private List<Vector2Int> wavePath = new();
-    WaitForSeconds waitPath = new WaitForSeconds(0.015f);
+    WaitForSeconds waitWaveBuild = new WaitForSeconds(0.015f);
 
     private void Start()
     {
@@ -62,7 +68,8 @@ public class WaveManager : MonoBehaviour
         // Create path
         StartCoroutine(GenerateRandomPath());
 
-        // Populate with new environment
+        // Populate with new environment but avoid path
+        StartCoroutine(PopulateEnvironment());
     }
 
     public void GenerateWaveRequirements(int waveNumber)
@@ -99,8 +106,6 @@ public class WaveManager : MonoBehaviour
         Debug.Log($"Generating a path with {pathLength} steps");
         for (int step = 0; step < pathLength; step++)
         {
-            yield return waitPath;
-
             List<Vector2Int> possibleMoves = new List<Vector2Int>();
 
             if (current.x > 0) possibleMoves.Add(new Vector2Int(current.x - 1, current.y));
@@ -151,7 +156,7 @@ public class WaveManager : MonoBehaviour
         for (int w = 0; w < wavePath.Count; w++)
         {
             WorldGrid.Instance.PaintTile((Vector3Int)wavePath[w], pathTile);
-            yield return waitPath;
+            yield return waitWaveBuild;
         }
     }
 
@@ -204,4 +209,62 @@ public class WaveManager : MonoBehaviour
         StartNewWave();
     }
 
+    private IEnumerator PopulateEnvironment()
+    {
+        foreach (var requirement in curWaveRequirements)
+        {
+            ItemSO item = requirement.Key;
+            int amountToSpawn = requirement.Value.amountRequired;
+
+            if (!TryGetSpawnableForItem(item, out var spawnable))
+            {
+                Debug.LogWarning($"No spawnable entity for item {item.name}");
+                continue;
+            }
+
+            for (int i = 0; i < amountToSpawn; i++)
+            {
+                Vector3 spawnPos = GetRandomSpawnPosition();
+
+                Instantiate(spawnable.entityPrefab, spawnPos, Quaternion.identity);
+                yield return waitWaveBuild;
+            }
+        }
+    }
+
+    private bool TryGetSpawnableForItem(ItemSO item, out SpawnableItem spawnItem)
+    {
+        List<SpawnableItem> matchingSpawnables = new List<SpawnableItem>();
+
+        foreach (var spawnable in spawnableItems)
+        {
+            if (spawnable.representedItem == item)
+            {
+                matchingSpawnables.Add(spawnable);
+            }
+        }
+
+        if(matchingSpawnables.Count > 0)
+        {
+            spawnItem = matchingSpawnables.RandomContent();
+            return true;
+        }
+
+        spawnItem = null;
+        return false;
+    }
+
+    private Vector3 GetRandomSpawnPosition()
+    {
+        Vector2Int gridSize = WorldGrid.Instance.WorldSize;
+
+        Vector2Int randomGridPos;
+        do
+        {
+            randomGridPos = new Vector2Int(Random.Range(0, gridSize.x), Random.Range(0, gridSize.y));
+        }
+        while (wavePath.Contains(randomGridPos)); // Avoid spawning on the path
+
+        return WorldGrid.Instance.GridToWorld(randomGridPos);
+    }
 }
