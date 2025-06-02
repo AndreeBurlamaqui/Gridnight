@@ -83,7 +83,7 @@ public class WorldGrid : MonoBehaviour
         }
 
         var curGrid = new Vector2(x, y);
-        var nextGrid = direction.normalized + curGrid;
+        var nextGrid = direction + curGrid;
         if (entitiesGrid.TryGetValue((int)nextGrid.x, (int)nextGrid.y, out var otherEntity))
         {
             // Notify entity that it's touching something

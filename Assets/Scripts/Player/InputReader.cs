@@ -69,7 +69,9 @@ public class InputReader : ScriptableObject
         }
 
         //Debug.Log("On move input " + ctx.phase);
-        moveDirection = holdingMove ? ctx.ReadValue<Vector2>() : Vector2.zero;
+        var inputValue = ctx.ReadValue<Vector2>();
+        Vector2 roundedInput = new Vector2(Mathf.Round(inputValue.x), Mathf.Round(inputValue.y));
+        moveDirection = holdingMove ? roundedInput : Vector2.zero;
         holdingMove = moveDirection != Vector2.zero; // Sometimes it's skipping phases. So if it's zeroed now, it's not moving
     }
 
