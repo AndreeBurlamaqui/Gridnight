@@ -80,6 +80,7 @@ public class InputReader : ScriptableObject
             return;
         }
 
+        OnInteract?.Invoke();
         switch (inputType)
         {
             case MapType.GAMEPLAY:
@@ -92,9 +93,6 @@ public class InputReader : ScriptableObject
             case MapType.UI:
                 break;
         }
-
-        Debug.Log("Interact");
-        OnInteract?.Invoke();
     }
 
     public void OnNavigateInput(CallbackContext ctx)

@@ -3,6 +3,7 @@ using UnityEngine;
 public abstract class PanelUISO : ScriptableObject
 {
     private BasePanelUI uiPanel;
+    public bool IsOpen => uiPanel.IsOpen;
 
     public virtual void AssignPanel(BasePanelUI panel)
     {

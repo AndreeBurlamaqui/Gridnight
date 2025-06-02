@@ -28,7 +28,7 @@ public class SelectGrid<T> : BaseGrid<T>
             return;
         }
 
-        Debug.Log($"Selecting grid " + newSelect);
+        //Debug.Log($"Selecting grid " + newSelect);
         OnSelectChange?.Invoke((CurrentSelected, newSelect));
         CurrentSelected = newSelect;
     }

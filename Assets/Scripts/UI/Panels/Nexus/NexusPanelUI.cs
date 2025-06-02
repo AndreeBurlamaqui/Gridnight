@@ -15,14 +15,15 @@ public class NexusPanelUI : BasePanelUI
 
     private void OnEnable()
     {
-        inventory.Open(); // Open inventory to show what the player has
         feedSlot.Setup(null);
-        playerInput.ChangeType(InputReader.MapType.UI);
 
         playerInput.OnNavigate.AddListener(MoveInsideInventory);
         playerInput.OnInteract.AddListener(TryInteractOnSlot);
+        playerInput.ChangeType(InputReader.MapType.UI);
 
         UpdateRequirements();
+
+        inventory.Open(); // Open inventory to show what the player has
     }
 
     private void OnDisable()
@@ -100,11 +101,12 @@ public class NexusPanelUI : BasePanelUI
 
     private void TryInteractOnSlot()
     {
-        if (!inventory.TryGetPanel(out InventoryPanelUI inventoryPanel))
+        if (!inventory.IsOpen || !inventory.TryGetPanel(out InventoryPanelUI inventoryPanel))
         {
             return;
         }
 
+        Debug.Log("Interacting on slot");
         if (feedSlot.IsSelected && inventoryPanel.TryGetPickedItem(out var selectedItem))
         {
             // Check if selected item is a requirement
