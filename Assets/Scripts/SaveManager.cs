@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEditor.Overlays;
@@ -62,11 +63,26 @@ public class SaveManager : MonoBehaviour
         UnityEngine.SceneManagement.SceneManager.LoadScene(0);
     }
 
-    private void Start()
+    private IEnumerator Start()
     {
         // Load save game and update inventory
         var curSave = LoadGame();
-        WaveManager.Instance.StartWave(curSave.waveNumber);
+
+        yield return null;
+
+        if (curSave != null)
+        {
+            WaveManager.Instance.StartWave(curSave.waveNumber);
+        }
+        else
+        {
+            WaveManager.Instance.StartWave(0);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        SaveGame();
     }
 }
 

@@ -12,5 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 663f5f0dc9d20724b81d4a592baf4718, type: 3}
   m_Name: PlayerInventory
   m_EditorClassIdentifier: 
-  items:
+  items: []
+  everyItemInProject:
+  - {fileID: 11400000, guid: 7d7550807a5e90746a5a62a9cfc5a7a3, type: 2}
+  - {fileID: 11400000, guid: e4afb1dbb3031854e99973e79c9e5fbf, type: 2}
+  - {fileID: 11400000, guid: 23a1ce0a3843ea04993926dfc12327a8, type: 2}
+  - {fileID: 11400000, guid: 01aa4629e1037c44fb1299d84d3ce719, type: 2}
+  - {fileID: 11400000, guid: 54ec899651e4a5146b19c0cfa13c8909, type: 2}
   - {fileID: 11400000, guid: 8282245ba7b0a0645ada0e9c9496b79a, type: 2}
+  - {fileID: 11400000, guid: ea017c8e8b10f0b458e053b03b4b3542, type: 2}
+  - {fileID: 11400000, guid: 426d72cb73e833e4a9e7effaa09bf64a, type: 2}
+  OnInventoryChange:
+    m_PersistentCalls:
+      m_Calls: []
+  OnItemRemove:
+    m_PersistentCalls:
+      m_Calls: []
+  OnItemAdd:
+    m_PersistentCalls:
+      m_Calls: []
