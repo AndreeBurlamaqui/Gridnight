@@ -416,6 +416,12 @@ public class WaveManager : MonoBehaviour
             var spawnPos = wavePath[0];
             var enemyPrefab = enemiesPrefabs.RandomContent();
             var newEnemy = Instantiate(enemyPrefab, WorldGrid.Instance.GridToWorld(spawnPos.x, spawnPos.y), Quaternion.identity);
+            if(newEnemy.TryGetModule(out HealthModule enemyHealth))
+            {
+                var enemyIndex = i;
+                enemyHealth.OnDeath.AddListener((_) => DestroyEnemy(enemyIndex));
+            }
+
             spawnedEnemies.Add(new MovingEnemy(newEnemy));
             yield return new WaitForSeconds(spawnInterval); // TODO: Pool it
         }
@@ -438,6 +444,11 @@ public class WaveManager : MonoBehaviour
             for (int e = 0; e < spawnedEnemies.Count; e++)
             {
                 var enemy = spawnedEnemies[e];
+                if(enemy.entity == null)
+                {
+                    continue;
+                }
+
                 enemy.currentPathIndex += 1;
                 if (!enemy.entity.TryGetModule(out MovementModule movement))
                 {
