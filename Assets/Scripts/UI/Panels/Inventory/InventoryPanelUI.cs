@@ -122,7 +122,7 @@ public class InventoryPanelUI : BasePanelUI
 
     public void Refresh()
     {
-        if(inventory == null)
+        if (inventory == null)
         {
             return;
         }
@@ -143,6 +143,11 @@ public class InventoryPanelUI : BasePanelUI
             }
         }
 
+        RefreshSelectedInfo();
+    }
+
+    private void RefreshSelectedInfo()
+    {
         bool showItemInfo = false;
         if (ItemGrid.TryGetSelectedValue(out var selectedItem))
         {
@@ -174,6 +179,10 @@ public class InventoryPanelUI : BasePanelUI
         {
             var selectedSlot = GetSelectedSlot();
             PickManager.Instance.MovePick(selectedSlot.transform.position);
+        }
+        else
+        {
+            RefreshSelectedInfo();
         }
     }
 
@@ -226,6 +235,7 @@ public class InventoryPanelUI : BasePanelUI
             PickManager.Instance.OnPick(pickedSlot.transform as RectTransform);
             pickedSlot.SetDisplay(false);
             fromPickSelect = ItemGrid.CurrentSelected;
+            RefreshSelectedInfo();
             Debug.Log("Picking " + pickedSlot.gameObject.name);
         }
     }
