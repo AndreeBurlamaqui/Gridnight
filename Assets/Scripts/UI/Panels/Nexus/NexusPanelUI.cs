@@ -113,13 +113,14 @@ public class NexusPanelUI : BasePanelUI
             {
                 // If so, Feed the nexus
                 int amountToGive = Mathf.Min(requiredAmount, food.amount);
-                int bouldersToRemove = Mathf.CeilToInt((float)amountToGive / food.amount);
+                float unitPerItem = (float)food.amount / selectedItem.TotalAmount;
+                int itemsToRemove = Mathf.CeilToInt(amountToGive / unitPerItem);
 
-                WaveManager.Instance.AddRequirementAchieveAmount(food.item, bouldersToRemove * food.amount);
-                Debug.Log($"Fed the nexus with {selectedItem.Title} x{bouldersToRemove} (equivalent to {bouldersToRemove * food.amount} units)"); 
+                WaveManager.Instance.AddRequirementAchieveAmount(food.item, itemsToRemove * food.amount);
+                Debug.Log($"Fed the nexus with {selectedItem.Title} x{itemsToRemove} (equivalent to {itemsToRemove * food.amount} units)"); 
                 
                 // Then reduce quantity
-                selectedItem.Add(-bouldersToRemove);
+                selectedItem.Add(-itemsToRemove);
                 if(selectedItem.TotalAmount <= 0)
                 {
                     // Remove from inventory
