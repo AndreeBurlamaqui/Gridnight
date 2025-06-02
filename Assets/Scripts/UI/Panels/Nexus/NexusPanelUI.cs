@@ -24,6 +24,10 @@ public class NexusPanelUI : BasePanelUI
         UpdateRequirements();
 
         inventory.Open(); // Open inventory to show what the player has
+        if(inventory.TryGetPanel(out InventoryPanelUI inventoryPanel))
+        {
+            inventoryPanel.SetInteractable(false);
+        }
     }
 
     private void OnDisable()

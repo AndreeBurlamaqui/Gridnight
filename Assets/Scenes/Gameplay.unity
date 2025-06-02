@@ -1439,6 +1439,7 @@ MonoBehaviour:
   panelSO: {fileID: 11400000, guid: a4359e40cc10b244e824282bc271934a, type: 2}
   layout: {fileID: 1280484270}
   slotUI: {fileID: 4124833453620071764, guid: 6ecce2e43605c544f80264716d6ef020, type: 3}
+  playetInput: {fileID: 11400000, guid: 48765a08617028942a030f8d72f8244d, type: 2}
   selectedTitleLabel: {fileID: 870361872}
   selectedDescriptionLabel: {fileID: 2094122280}
   foodIcon: {fileID: 1704125655}

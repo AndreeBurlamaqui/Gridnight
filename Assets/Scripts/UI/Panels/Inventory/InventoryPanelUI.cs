@@ -9,6 +9,7 @@ public class InventoryPanelUI : BasePanelUI
 {
     [SerializeField] private GridLayoutGroup layout;
     [SerializeField] private InventorySlotUI slotUI;
+    [SerializeField] private InputReader playetInput;
 
     [SerializeField] private TMP_Text selectedTitleLabel;
     [SerializeField] private TMP_Text selectedDescriptionLabel;
@@ -39,6 +40,8 @@ public class InventoryPanelUI : BasePanelUI
             UpdateInventory();
             Refresh();
         }
+
+        SetInteractable(true);
     }
 
     private void OnDisable()
@@ -46,6 +49,22 @@ public class InventoryPanelUI : BasePanelUI
         if (PickManager.Instance != null)
         {
             PickManager.Instance.Drop();
+        }
+
+        SetInteractable(false);
+    }
+
+    public void SetInteractable(bool state)
+    {
+        if (state)
+        {
+            playetInput.OnNavigate.AddListener(NavigateSelection);
+            playetInput.OnInteract.AddListener(PickSelection);
+        }
+        else
+        {
+            playetInput.OnNavigate.RemoveListener(NavigateSelection);
+            playetInput.OnInteract.RemoveListener(PickSelection);
         }
     }
 
