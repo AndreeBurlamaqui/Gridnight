@@ -148,7 +148,7 @@ public class NexusPanelUI : BasePanelUI
         else
         {
             // Try picking on inventory
-            inventoryPanel.PickSelection();
+            inventoryPanel.PickSelection(); // On nexus, this is the only action available
         }
     }
 }

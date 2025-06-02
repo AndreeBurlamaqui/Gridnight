@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -12,6 +13,7 @@ public class ItemSO : ScriptableObject
     [field: SerializeField] public int StartAmount { get; private set; }
     [SerializeField] private ItemSO foodItem;
     [SerializeField] private int foodAmount;
+    [SerializeField] private ItemAction[] actions;
 
     [field: Header("RUNTIME")]
     [field: SerializeField] public int TotalAmount { get; private set; }
@@ -56,4 +58,17 @@ public class ItemSO : ScriptableObject
     }
 
     public bool HasSavedSlotPosition() => SlotGridPosition.x >= 0 && SlotGridPosition.y >= 0;
+
+    public IEnumerable<ItemAction> GetActions()
+    {
+        if(actions == null)
+        {
+            yield break;
+        }
+
+        for (int a = 0; a < actions.Length; a++)
+        {
+            yield return actions[a];
+        }
+    }
 }

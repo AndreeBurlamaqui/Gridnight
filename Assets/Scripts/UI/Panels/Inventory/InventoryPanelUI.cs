@@ -11,10 +11,15 @@ public class InventoryPanelUI : BasePanelUI
     [SerializeField] private InventorySlotUI slotUI;
     [SerializeField] private InputReader playetInput;
 
+    [Header("ITEM INFO")]
     [SerializeField] private TMP_Text selectedTitleLabel;
     [SerializeField] private TMP_Text selectedDescriptionLabel;
     [SerializeField] private Image foodIcon;
     [SerializeField] private TMP_Text foodLabel;
+
+    [Header("ITEM ACTIONS")]
+    [SerializeField] private HorizontalLayoutGroup actionLayout;
+    [SerializeField] private ItemActionUI[] actionsUI; // TODO: Make this unlimited. Current UI doesn't support too
 
     private InventorySO inventory;
     private List<InventorySlotUI> slots = new();
@@ -42,6 +47,11 @@ public class InventoryPanelUI : BasePanelUI
         }
 
         SetInteractable(true);
+
+        var rectAction = actionLayout.transform as RectTransform;
+        Vector3 startY = rectAction.anchoredPosition;
+        startY.y = ((RectTransform)actionLayout.transform).rect.height;
+        rectAction.anchoredPosition = startY;
     }
 
     private void OnDisable()
@@ -59,12 +69,12 @@ public class InventoryPanelUI : BasePanelUI
         if (state)
         {
             playetInput.OnNavigate.AddListener(NavigateSelection);
-            playetInput.OnInteract.AddListener(PickSelection);
+            playetInput.OnInteract.AddListener(InteractOnSelected);
         }
         else
         {
             playetInput.OnNavigate.RemoveListener(NavigateSelection);
-            playetInput.OnInteract.RemoveListener(PickSelection);
+            playetInput.OnInteract.RemoveListener(InteractOnSelected);
         }
     }
 
@@ -208,6 +218,54 @@ public class InventoryPanelUI : BasePanelUI
     public InventorySlotUI GetSelectedSlot()
     {
         return slots[ItemGrid.SelectedToIndex(layout)];
+    }
+
+    public void InteractOnSelected()
+    {
+        if(!ItemGrid.TryGetSelectedValue(out var selectedItem))
+        {
+            return;
+        }
+
+        // Show the actions tab
+        var rectAction = actionLayout.transform as RectTransform;
+        rectAction.DOAnchorPosY(0, 0.15f).SetEase(Ease.OutBack);
+
+        for(int a = 0; a < actionsUI.Length; a++)
+        {
+            actionsUI[a].gameObject.SetActive(false);
+        }
+
+        var moveAct = actionsUI[0];
+        moveAct.Setup("Move", PickSelection);
+        moveAct.Select();
+        moveAct.gameObject.SetActive(true);
+        int actionIndex = 1;
+        foreach(var action in selectedItem.GetActions())
+        {
+            var actUI = actionsUI[actionIndex];
+            actUI.Setup(action.Title, () => ExecuteAction(action));
+            actUI.gameObject.SetActive(true);
+            actionIndex++;
+        }
+
+        SetInteractable(false); // So it doesn't move the selection
+    }
+
+    private void ExecuteAction(ItemAction action)
+    {
+        if (!ItemGrid.TryGetSelectedValue(out var selectedItem))
+        {
+            return;
+        }
+
+        // Execute and close
+        action.Execute(selectedItem);
+        var rectAction = actionLayout.transform as RectTransform;
+        rectAction.DOAnchorPosY(((RectTransform)actionLayout.transform).rect.height, 0.15f).SetEase(Ease.InBack);
+        SetInteractable(true);
+        UpdateInventory();
+        Refresh();
     }
 
     public void PickSelection()
