@@ -12,6 +12,10 @@ public class HealthModule : EntityModule
     public bool IsAlive => CurrentHP > 0;
 
     public UnityEvent<HealthModule> OnDeath;
+    /// <summary>
+    /// Callback the range of Current/Start HP
+    /// </summary>
+    public UnityEvent<float> OnHit;
 
     private string DamageTweenID => "DAMAGE_TWEEN_" + GetInstanceID();
     private string HealTweenID => "HEAL_TWEEN_" + GetInstanceID();
@@ -26,13 +30,14 @@ public class HealthModule : EntityModule
     {
         DOTween.Kill(DamageTweenID, true);
         var oldRot = transform.rotation;
+        CurrentHP -= dmg;
+        OnHit?.Invoke((float)CurrentHP / (float)StartHP);
+
         transform.DOShakeRotation(0.15f, 55, 25, randomnessMode: ShakeRandomnessMode.Harmonic)
             .OnComplete(OnFinishTween)
             .SetId(DamageTweenID);
 
         void OnFinishTween(){
-            CurrentHP -= dmg;
-
             transform.rotation = oldRot;
             if (CurrentHP <= 0)
             {
