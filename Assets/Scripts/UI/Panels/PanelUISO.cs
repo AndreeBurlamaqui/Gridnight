@@ -45,4 +45,16 @@ public abstract class PanelUISO : ScriptableObject
             Open();
         }
     }
+
+    public bool TryGetPanel<T>(out T typePanel) where T : BasePanelUI
+    {
+        typePanel = default(T);
+        if(uiPanel is T targetType)
+        {
+            typePanel = targetType;
+            return true;
+        }
+
+        return false;
+    }
 }

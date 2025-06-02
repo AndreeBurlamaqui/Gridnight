@@ -2245,10 +2245,10 @@ TextureImporter:
       name: Ws_Exclamation
       rect:
         serializedVersion: 2
-        x: 259
-        y: 112
-        width: 10
-        height: 16
+        x: 261
+        y: 114
+        width: 6
+        height: 13
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -2272,7 +2272,7 @@ TextureImporter:
         width: 7
         height: 9
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 2, y: 2, z: 2, w: 2}
       customData: 
       outline: []
@@ -2281,6 +2281,28 @@ TextureImporter:
       bones: []
       spriteID: a6e4fc6cd7b343e46a2bc510a6ce516b
       internalID: -485238821
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Ws_1
+      rect:
+        serializedVersion: 2
+        x: 274
+        y: 115
+        width: 13
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fb6d3adc4d0f2594f95e16d21675c0a6
+      internalID: -1795554502
       vertices: []
       indices: 
       edges: []
