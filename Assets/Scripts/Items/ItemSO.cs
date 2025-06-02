@@ -10,6 +10,8 @@ public class ItemSO : ScriptableObject
     [field: SerializeField] public string Title { get; private set; }
     [field: SerializeField, TextArea(2, 4)] public string Description { get; private set; }
     [field: SerializeField] public int StartAmount { get; private set; }
+    [SerializeField] private ItemSO foodItem;
+    [SerializeField] private int foodAmount;
 
     [field: Header("RUNTIME")]
     [field: SerializeField, NonSerialized] public int TotalAmount { get; private set; }
@@ -43,4 +45,7 @@ public class ItemSO : ScriptableObject
     {
         TotalAmount += amount;
     }
+
+    public (ItemSO food, int amount) GetFood() => (foodItem, foodAmount * TotalAmount);
+   
 }

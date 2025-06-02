@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 43b91e6def41bc141804985c7c05ea14, type: 3}
-  m_Name: Rock
+  m_Name: Boulder
   m_EditorClassIdentifier: 
-  <Icon>k__BackingField: {fileID: 402605497, guid: ed4edcc13cc60764181cc25a7679faf6, type: 3}
-  <Title>k__BackingField: Rock
-  <Description>k__BackingField: A pebble
+  <Icon>k__BackingField: {fileID: 1460250681, guid: ed4edcc13cc60764181cc25a7679faf6, type: 3}
+  <Title>k__BackingField: Boulder
+  <Description>k__BackingField: A bunch of rocks together
   <StartAmount>k__BackingField: 0
-  foodItem: {fileID: 11400000}
-  foodAmount: 1
+  foodItem: {fileID: 11400000, guid: 8282245ba7b0a0645ada0e9c9496b79a, type: 2}
+  foodAmount: 3

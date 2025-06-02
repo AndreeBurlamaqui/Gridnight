@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,6 +8,11 @@ public class InventoryPanelUI : BasePanelUI
 {
     [SerializeField] private GridLayoutGroup layout;
     [SerializeField] private InventorySlotUI slotUI;
+
+    [SerializeField] private TMP_Text selectedTitleLabel;
+    [SerializeField] private TMP_Text selectedDescriptionLabel;
+    [SerializeField] private Image foodIcon;
+    [SerializeField] private TMP_Text foodLabel;
 
     private InventorySO inventory;
     private List<InventorySlotUI> slots = new();
@@ -92,6 +98,16 @@ public class InventoryPanelUI : BasePanelUI
             {
                 slot.Setup(null);
             }
+        }
+
+        if (ItemGrid.TryGetSelectedValue(out var selectedItem))
+        {
+            selectedDescriptionLabel.text = selectedItem.Title;
+            selectedDescriptionLabel.text = selectedItem.Description;
+
+            var (foodItem, foodAmount) = selectedItem.GetFood();
+            foodIcon.sprite = foodItem.Icon;
+            foodLabel.text = "x" + foodAmount;
         }
     }
 
