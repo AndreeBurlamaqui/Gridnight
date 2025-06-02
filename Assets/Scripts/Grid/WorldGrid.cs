@@ -104,6 +104,7 @@ public class WorldGrid : MonoBehaviour
             {
                 // Notify entity that it's touching something
                 entity.Hit(otherEntity);
+                return;
             }
             else
             {

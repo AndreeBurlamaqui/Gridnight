@@ -97,24 +97,22 @@ public class WaveManager : MonoBehaviour
     }
 
     public int MaximumPossibleFoods => possibleFoods.Length;
+    public int CurrentWave { get; private set; }
 
     Dictionary<ItemSO, (int amountRequired, int amountAchieved)> curWaveRequirements = new();
-    private int curWave;
     private List<Vector2Int> wavePath = new();
     WaitForSeconds waitWaveBuild = new WaitForSeconds(0.015f);
 
     private void Start()
     {
-        curWave = 0;
-        StartNewWave();
         StartCoroutine(MoveEnemies());
     }
 
-    private void StartNewWave()
+    public void StartWave(int waveCount)
     {
-        curWave++;
+        CurrentWave = waveCount;
         waveSlider.DOFillAmount(1, waveTime).From(0).OnComplete(OnWaveFinish);
-        GenerateWaveRequirements(curWave);
+        GenerateWaveRequirements(CurrentWave);
 
         // Create path
         WorldGrid.Instance.ClearTilemap();
@@ -125,7 +123,7 @@ public class WaveManager : MonoBehaviour
         StartCoroutine(PopulateEnvironment());
 
         // And start spawning enemies
-        int enemyCount = Mathf.RoundToInt(baseEnemyQuantity * Mathf.Pow(difficultyMultiplier, curWave));
+        int enemyCount = Mathf.RoundToInt(baseEnemyQuantity * Mathf.Pow(difficultyMultiplier, CurrentWave));
         StartCoroutine(SpawnEnemiesOverWave(enemyCount));
     }
 
@@ -159,7 +157,7 @@ public class WaveManager : MonoBehaviour
 
         Vector2Int current = start;
         var gridSize = WorldGrid.Instance.WorldSize;
-        int pathLength = Mathf.RoundToInt(basePathLength * Mathf.Pow(difficultyMultiplier, curWave));
+        int pathLength = Mathf.RoundToInt(basePathLength * Mathf.Pow(difficultyMultiplier, CurrentWave));
         Debug.Log($"Generating a path with {pathLength} steps");
         for (int step = 0; step < pathLength; step++)
         {
@@ -274,7 +272,7 @@ public class WaveManager : MonoBehaviour
 
     private void OnWaveFinish()
     {
-        StartNewWave();
+        StartWave(CurrentWave + 1);
     }
 
     private IEnumerator PopulateEnvironment()
@@ -374,8 +372,11 @@ public class WaveManager : MonoBehaviour
             return;
         }
 
-        Vector2Int selectedTile = sideTiles[Random.Range(0, sideTiles.Count)];
-        Vector3 spawnPos = WorldGrid.Instance.GridToWorld(selectedTile);
+        Vector2Int selectedTile = sideTiles.RandomContent();
+        if(!WorldGrid.Instance.TryGetValidPositionAround(WorldGrid.Instance.GridToWorld(selectedTile), out var spawnPos))
+        {
+            return;
+        }
 
         BaseEntity newConstruct = Instantiate(constructPrefab, spawnPos, Quaternion.identity);
         DOVirtual.DelayedCall(constructLifetime, () => OnConstructFadeOut(newConstruct));
@@ -425,7 +426,7 @@ public class WaveManager : MonoBehaviour
     private IEnumerator SpawnEnemiesOverWave(int totalEnemies)
     {
         float spawnInterval = waveTime / totalEnemies;
-        Debug.Log($"Wave {curWave}: Spawning {totalEnemies} over {waveTime} each {spawnInterval} seconds");
+        Debug.Log($"Wave {CurrentWave}: Spawning {totalEnemies} over {waveTime} each {spawnInterval} seconds");
         for (int i = 0; i < totalEnemies; i++)
         {
             var spawnPos = wavePath[0];
