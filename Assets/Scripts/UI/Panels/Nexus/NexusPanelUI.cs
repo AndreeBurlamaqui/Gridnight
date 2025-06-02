@@ -19,30 +19,66 @@ public class NexusPanelUI : BasePanelUI
         feedSlot.Setup(null);
         playerInput.ChangeType(InputReader.MapType.UI);
 
-        playerInput.OnNavigate += CheckNavigationAttempt;
+        playerInput.OnNavigate += MoveInsideInventory;
+        playerInput.OnInteract += TryInteractOnSlot;
     }
 
     private void OnDisable()
     {
-        playerInput.OnNavigate -= CheckNavigationAttempt;
+        playerInput.OnNavigate -= MoveInsideInventory;
+        playerInput.OnInteract -= TryInteractOnSlot;
     }
 
-    private void CheckNavigationAttempt(Vector2Int dir)
+    private void MoveInsideInventory(Vector2Int dir)
     {
-        if(dir.x >= 0)
-        {
-            return;
-        }
-
-        // If it's on the right, check if the player is trying to feed the nexus
-        if(!inventory.TryGetPanel(out InventoryPanelUI inventoryPanel))
+        if (!inventory.TryGetPanel(out InventoryPanelUI inventoryPanel))
         {
             return;
         }
 
         if (inventoryPanel.ItemGrid.CurrentSelected.x <= 0)
         {
-            PickManager.Instance.MovePick(feedSlot.transform.position);
+            // If it's on the right, check if the player is trying to feed the nexus
+            if (dir.x < 0)
+            {
+                PickManager.Instance.MovePick(feedSlot.transform.position);
+                feedSlot.SetSelect(true);
+                inventoryPanel.GetSelectedSlot().SetSelect(false);
+                return;
+            }
+        }
+
+
+        if (feedSlot.IsSelected)
+        {
+            // Go back to the old slot, without moving
+            var selectedSlot = inventoryPanel.GetSelectedSlot();
+            PickManager.Instance.MovePick(selectedSlot.transform.position);
+            selectedSlot.SetSelect(true);
+        }
+        else
+        {
+            // Normal navigation
+            inventoryPanel.NavigateSelection(dir);
+        }
+        feedSlot.SetSelect(false);
+    }
+
+    private void TryInteractOnSlot()
+    {
+        if (!inventory.TryGetPanel(out InventoryPanelUI inventoryPanel))
+        {
+            return;
+        }
+
+        if (feedSlot.IsSelected)
+        {
+            // Feed the nexus
+        }
+        else
+        {
+            // Try picking on inventory
+            inventoryPanel.PickSelection();
         }
     }
 }

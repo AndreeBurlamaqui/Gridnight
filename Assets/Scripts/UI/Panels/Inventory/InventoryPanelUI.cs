@@ -7,7 +7,6 @@ public class InventoryPanelUI : BasePanelUI
 {
     [SerializeField] private GridLayoutGroup layout;
     [SerializeField] private InventorySlotUI slotUI;
-    [SerializeField] private InputReader playerInput;
 
     private InventorySO inventory;
     private List<InventorySlotUI> slots = new();
@@ -31,15 +30,11 @@ public class InventoryPanelUI : BasePanelUI
             ItemGrid.Select(0, 0);
             Refresh();
         }
-
-        playerInput.OnNavigate += NavigateSelection;
-        playerInput.OnInteract += PickSelection;
     }
 
     private void OnDisable()
     {
-        playerInput.OnNavigate -= NavigateSelection;
-        playerInput.OnInteract -= PickSelection;
+        PickManager.Instance.Drop();
     }
 
     private void SetupInventory(InventorySO inventorySO)
@@ -100,7 +95,7 @@ public class InventoryPanelUI : BasePanelUI
         }
     }
 
-    private void NavigateSelection(Vector2Int direction)
+    public void NavigateSelection(Vector2Int direction)
     {
         if (ItemGrid == null || inventory == null)
         {
@@ -110,12 +105,17 @@ public class InventoryPanelUI : BasePanelUI
         ItemGrid.SelectTowards(direction);
         if (PickManager.Instance.IsPicking)
         {
-            var selectedSlot = slots[ItemGrid.SelectedToIndex(layout)];
+            var selectedSlot = GetSelectedSlot();
             PickManager.Instance.MovePick(selectedSlot.transform.position);
         }
     }
 
-    private void PickSelection()
+    public InventorySlotUI GetSelectedSlot()
+    {
+        return slots[ItemGrid.SelectedToIndex(layout)];
+    }
+
+    public void PickSelection()
     {
         if(ItemGrid == null)
         {
