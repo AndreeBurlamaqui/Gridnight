@@ -75,8 +75,11 @@ public class InventoryPanelUI : BasePanelUI
         Refresh();
     }
 
-    private void UpdateInventory()
+    public void UpdateInventory()
     {
+        // Clear every item grid
+        ItemGrid.Clear();
+
         for(int i = 0; i < inventory.items.Count; i++)
         {
             var item = inventory.items[i];
@@ -112,7 +115,7 @@ public class InventoryPanelUI : BasePanelUI
         slots[newIndex].SetSelect(true);
     }
 
-    private void Refresh()
+    public void Refresh()
     {
         if(inventory == null)
         {
@@ -184,7 +187,7 @@ public class InventoryPanelUI : BasePanelUI
         if (PickManager.Instance.IsPicking)
         {
             PickManager.Instance.Drop();
-            if (!ItemGrid.TryGetValue(fromPickSelect.x, fromPickSelect.y, out var fromSlot))
+            if (!TryGetPickedItem(out var fromSlot))
             {
                 return; // Nothing on origin (shouldn't happen)
             }
@@ -218,5 +221,34 @@ public class InventoryPanelUI : BasePanelUI
             fromPickSelect = ItemGrid.CurrentSelected;
             Debug.Log("Picking " + pickedSlot.gameObject.name);
         }
+    }
+
+    public void Deselect()
+    {
+        if (!PickManager.Instance.IsPicking)
+        {
+            return;
+        }
+
+        ItemGrid.Select(fromPickSelect.x, fromPickSelect.y);
+        PickManager.Instance.Drop();
+        Refresh();
+    }
+
+    public bool TryGetPickedItem(out ItemSO pickedItem)
+    {
+        pickedItem = null;
+        if (!PickManager.Instance.IsPicking)
+        {
+            return false;
+        }
+
+        if (!ItemGrid.TryGetValue(fromPickSelect.x, fromPickSelect.y, out pickedItem))
+        {
+            return false; // Nothing on origin (shouldn't happen)
+        }
+
+
+        return true;
     }
 }

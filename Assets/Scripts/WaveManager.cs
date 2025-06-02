@@ -30,7 +30,7 @@ public class WaveManager : MonoBehaviour
 
     public int MaximumPossibleFoods => possibleFoods.Length;
 
-    Dictionary<ItemSO, int> curWaveRequirements = new Dictionary<ItemSO, int>();
+    Dictionary<ItemSO, (int amountRequired, int amountAchieved) > curWaveRequirements = new();
 
     private void Start()
     {
@@ -42,7 +42,7 @@ public class WaveManager : MonoBehaviour
         curWaveRequirements.Clear();
         int typesRequired = Mathf.Min(baseTypes + Mathf.FloorToInt(waveNumber / 2f), MaximumPossibleFoods);
 
-        var randomTypes = Randomizer.CreateRandomOrder(typesRequired, true);
+        var randomTypes = Randomizer.CreateRandomOrder(typesRequired, true); // NOTE: When type required = 1 it'll always be rock
         for (int r = 0; r < randomTypes.Length; r++)
         {
             var foodItem = possibleFoods[randomTypes[r]];
@@ -52,15 +52,41 @@ public class WaveManager : MonoBehaviour
             quantity += Random.Range(-1, 2);
             quantity = Mathf.Max(1, quantity);
 
-            curWaveRequirements.Add(foodItem, quantity);
+            curWaveRequirements.Add(foodItem, (quantity, 0));
         }
     }
 
-    public IEnumerable<(ItemSO item, int amount)> LoopWaveRequirements()
+    public IEnumerable<(ItemSO item, int amountRequired, int amountAchieved)> LoopWaveRequirements()
     {
         foreach(var requirement in curWaveRequirements)
         {
-            yield return (requirement.Key, requirement.Value);
+            Debug.Log($"Looping wave requirement: {requirement.Key} {requirement.Value.amountAchieved}/{requirement.Value.amountRequired}");
+            yield return (requirement.Key, requirement.Value.amountRequired, requirement.Value.amountAchieved);
+        }
+    }
+
+    public bool IsRequirement(ItemSO item, out int amountRequired)
+    {
+        foreach(var requirement in LoopWaveRequirements())
+        {
+            if(requirement.item == item)
+            {
+                amountRequired = requirement.amountRequired - requirement.amountAchieved;
+                return true;
+            }
+        }
+
+        amountRequired = 0;
+        return false;
+    }
+
+    public void AddRequirementAchieveAmount(ItemSO item, int amount)
+    {
+        if(curWaveRequirements.TryGetValue(item, out var requirement))
+        {
+            requirement.amountAchieved += amount;
+            curWaveRequirements[item] = requirement;
+            Debug.Log($"Requirement {item.Title} {requirement.amountAchieved}/{requirement.amountRequired}");
         }
     }
 }

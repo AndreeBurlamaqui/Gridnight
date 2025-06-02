@@ -14,26 +14,29 @@ public class InventorySlotUI : MonoBehaviour
     public bool IsSelected { get; private set; }
     public bool IsInteractable { get; private set; }
 
+    private void Awake()
+    {
+        group = gameObject.GetOrAddComponent<CanvasGroup>();
+    }
+
     public void Setup(Sprite iconSprite, int amount)
     {
         bool hasIcon = iconSprite != null;
+        icon.gameObject.SetActive(hasIcon);
         if (hasIcon)
         {
             icon.sprite = iconSprite;
         }
 
         bool hasAmount = amount > 0;
+        amountLabel.gameObject.SetActive(hasAmount);
         if (hasAmount)
         {
             amountLabel.text = amount.ToString("00");
         }
 
-        icon.gameObject.SetActive(hasIcon);
-        amountLabel.gameObject.SetActive(hasAmount);
         SetDisplay(true);
         selectHighlight.color = selectHighlight.color.SetAlpha(IsSelected ? 1 : 0);
-
-        group = gameObject.GetOrAddComponent<CanvasGroup>();
     }
 
     public void Setup(ItemSO item)

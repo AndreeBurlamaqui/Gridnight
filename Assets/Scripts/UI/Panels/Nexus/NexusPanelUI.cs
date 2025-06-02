@@ -36,6 +36,7 @@ public class NexusPanelUI : BasePanelUI
         if (slots.Count < WaveManager.Instance.MaximumPossibleFoods)
         {
             // Create the slots
+            Debug.Log("Creating requirement nexus slots");
             for (int f = 0; f < WaveManager.Instance.MaximumPossibleFoods; f++)
             {
                 slots.Add(Instantiate(slotUIPrefab, layout.transform));
@@ -52,9 +53,13 @@ public class NexusPanelUI : BasePanelUI
         foreach (var requirement in WaveManager.Instance.LoopWaveRequirements())
         {
             var slot = slots[slotIndex];
-            slot.Setup(requirement.item, requirement.amount);
-            slot.SetInteractable(false);
+
+            int amountShown = requirement.amountRequired - requirement.amountAchieved;
+            slot.Setup(requirement.item, amountShown);
+            slot.SetInteractable(amountShown <= 0);
             slot.gameObject.SetActive(true);
+
+            slotIndex++;
         }
     }
 
@@ -100,9 +105,38 @@ public class NexusPanelUI : BasePanelUI
             return;
         }
 
-        if (feedSlot.IsSelected)
+        if (feedSlot.IsSelected && inventoryPanel.TryGetPickedItem(out var selectedItem))
         {
-            // Feed the nexus
+            // Check if selected item is a requirement
+            var food = selectedItem.GetFood();
+            if (WaveManager.Instance.IsRequirement(food.item, out int requiredAmount) && requiredAmount > 0)
+            {
+                // If so, Feed the nexus
+                int amountToGive = Mathf.Min(requiredAmount, food.amount);
+                int bouldersToRemove = Mathf.CeilToInt((float)amountToGive / food.amount);
+
+                WaveManager.Instance.AddRequirementAchieveAmount(food.item, bouldersToRemove * food.amount);
+                Debug.Log($"Fed the nexus with {selectedItem.Title} x{bouldersToRemove} (equivalent to {bouldersToRemove * food.amount} units)"); 
+                
+                // Then reduce quantity
+                selectedItem.Add(-bouldersToRemove);
+                if(selectedItem.TotalAmount <= 0)
+                {
+                    // Remove from inventory
+                    inventory.items.Remove(selectedItem);
+                }
+
+                inventoryPanel.UpdateInventory();
+                inventoryPanel.Refresh();
+                UpdateRequirements();
+                PickManager.Instance.Drop();
+            }
+            else
+            {
+                // Otherwise cancel operation and go back to inventory
+                inventoryPanel.Deselect();
+                Debug.Log("Not a nexus requirement. Deselecting");
+            }
         }
         else
         {

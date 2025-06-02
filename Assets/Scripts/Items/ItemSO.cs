@@ -48,7 +48,7 @@ public class ItemSO : ScriptableObject
         TotalAmount += amount;
     }
 
-    public (ItemSO food, int amount) GetFood() => (foodItem, foodAmount * TotalAmount);
+    public (ItemSO item, int amount) GetFood() => (foodItem, foodAmount * TotalAmount);
    
     public void UpdateSlotPosition(int x, int y)
     {

@@ -218,4 +218,14 @@ public class BaseGrid<T>
         return (-1, -1);
     }
 
+    public void Clear()
+    {
+        for (int x = 0; x < gridArray.GetLength(0); x++) // first dimension
+        {
+            for (int y = 0; y < gridArray.GetLength(1); y++) // second dimension
+            {
+                SetValue(x, y, default(T));
+            }
+        }
+    }
 }
