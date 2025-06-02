@@ -59,7 +59,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a48c061b9db29940877e622e40fc5b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <StartHP>k__BackingField: 3
+  <StartHP>k__BackingField: 5
   <CurrentHP>k__BackingField: 0
   OnDeath:
     m_PersistentCalls:
