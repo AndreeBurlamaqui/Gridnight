@@ -19,14 +19,14 @@ public class NexusPanelUI : BasePanelUI
         feedSlot.Setup(null);
         playerInput.ChangeType(InputReader.MapType.UI);
 
-        playerInput.OnNavigate += MoveInsideInventory;
-        playerInput.OnInteract += TryInteractOnSlot;
+        playerInput.OnNavigate.AddListener(MoveInsideInventory);
+        playerInput.OnInteract.AddListener(TryInteractOnSlot);
     }
 
     private void OnDisable()
     {
-        playerInput.OnNavigate -= MoveInsideInventory;
-        playerInput.OnInteract -= TryInteractOnSlot;
+        playerInput.OnNavigate.RemoveListener(MoveInsideInventory);
+        playerInput.OnInteract.RemoveListener(TryInteractOnSlot);
     }
 
     private void MoveInsideInventory(Vector2Int dir)

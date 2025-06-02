@@ -12,4 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b74c15b7121466e47866e91de61c109b, type: 3}
   m_Name: NexusPanelSO
   m_EditorClassIdentifier: 
-  items: []
+  items:
+  - {fileID: 11400000, guid: 8282245ba7b0a0645ada0e9c9496b79a, type: 2}

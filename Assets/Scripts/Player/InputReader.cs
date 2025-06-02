@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Events;
 using static UnityEngine.InputSystem.InputAction;
 
 [CreateAssetMenu(fileName = "InputReader", menuName = "Scriptable Objects/InputReader")]
@@ -19,8 +20,9 @@ public class InputReader : ScriptableObject
     public bool holdingMove;
 
     // EVENTS
-    public event Action<Vector2Int> OnNavigate;
-    public event Action OnInteract;
+    public UnityEvent<Vector2Int> OnNavigate;
+    public UnityEvent OnInteract;
+    public UnityEvent OnInventory;
 
     public void Initiate()
     {
@@ -109,5 +111,15 @@ public class InputReader : ScriptableObject
 
         navigateDirection = ctx.ReadValue<Vector2>();
         OnNavigate?.Invoke(new Vector2Int((int)navigateDirection.x, (int)navigateDirection.y));
+    }
+
+    public void OnInventoryInput(CallbackContext ctx)
+    {
+        if (!ctx.performed)
+        {
+            return;
+        }
+
+        OnInventory?.Invoke();
     }
 }
