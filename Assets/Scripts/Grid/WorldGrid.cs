@@ -40,7 +40,12 @@ public class WorldGrid : MonoBehaviour
 
     public void Spawn(BaseEntity entity, Vector3 worldPos)
     {
-        var gridPos = WorldToGrid(worldPos);
+        if(!TryGetValidPositionAround(worldPos, out var validPos))
+        {
+            return;
+        }
+
+        var gridPos = WorldToGrid(validPos);
         SetEntityPosition(entity, gridPos);
 
         if(entity.TryGetModule(out HealthModule health))

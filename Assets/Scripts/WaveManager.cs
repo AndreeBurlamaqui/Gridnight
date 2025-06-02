@@ -108,6 +108,23 @@ public class WaveManager : MonoBehaviour
         StartCoroutine(MoveEnemies());
     }
 
+    private void OnEnable()
+    {
+        if(nexusEntity.TryGetModule(out HealthModule nexusHealth))
+        {
+            nexusHealth.OnDeath.AddListener(GameOver);
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (nexusEntity.TryGetModule(out HealthModule nexusHealth))
+        {
+            nexusHealth.OnDeath.RemoveListener(GameOver);
+        }
+    }
+
+
     public void StartWave(int waveCount)
     {
         CurrentWave = waveCount;
@@ -123,6 +140,15 @@ public class WaveManager : MonoBehaviour
         StartCoroutine(PopulateEnvironment());
 
         // And start spawning enemies
+        for (int e = spawnedEnemies.Count - 1; e >= 0; e--)
+        {
+            // Remove destroyed enemies
+            var enemy = spawnedEnemies[e];
+            if (enemy.entity == null)
+            {
+                spawnedEnemies.RemoveAt(e);
+            }
+        }
         int enemyCount = Mathf.RoundToInt(baseEnemyQuantity * Mathf.Pow(difficultyMultiplier, CurrentWave));
         StartCoroutine(SpawnEnemiesOverWave(enemyCount));
     }
@@ -280,7 +306,13 @@ public class WaveManager : MonoBehaviour
         // Clear old ones first
         for (int s = 0; s < spawnedItems.Count; s++)
         {
-            Destroy(spawnedItems[s].gameObject);
+            var spawnedItem = spawnedItems[s];
+            if(spawnedItem == null)
+            {
+                continue;
+            }
+
+            Destroy(spawnedItem.gameObject);
         }
         spawnedItems.Clear();
 
@@ -353,15 +385,20 @@ public class WaveManager : MonoBehaviour
         // Find candidate tiles adjacent to path but not in path
         List<Vector2Int> sideTiles = new List<Vector2Int>();
 
-        foreach (var pathTile in wavePath)
+        for (int w = 0; w < wavePath.Count; w++)
         {
+            Vector2Int pathTile = wavePath[w];
             var adjacentTiles = GetAdjacentTiles(pathTile);
 
-            foreach (var tile in adjacentTiles)
+            for (int a = 0; a < adjacentTiles.Count; a++)
             {
+                Vector2Int tile = adjacentTiles[a];
                 if (!wavePath.Contains(tile) && !sideTiles.Contains(tile))
                 {
-                    sideTiles.Add(tile);
+                    if (WorldGrid.Instance.TryGetValidPositionAround(WorldGrid.Instance.GridToWorld(tile), out var validPos))
+                    {
+                        sideTiles.Add(WorldGrid.Instance.WorldToGrid(validPos));
+                    }
                 }
             }
         }
@@ -413,12 +450,13 @@ public class WaveManager : MonoBehaviour
 
     private List<Vector2Int> GetAdjacentTiles(Vector2Int tile)
     {
-        List<Vector2Int> adjacents = new List<Vector2Int>();
-
-        adjacents.Add(tile + Vector2Int.up);
-        adjacents.Add(tile + Vector2Int.down);
-        adjacents.Add(tile + Vector2Int.left);
-        adjacents.Add(tile + Vector2Int.right);
+        List<Vector2Int> adjacents = new List<Vector2Int>
+        {
+            tile + Vector2Int.up,
+            tile + Vector2Int.down,
+            tile + Vector2Int.left,
+            tile + Vector2Int.right
+        };
 
         return adjacents;
     }
@@ -432,11 +470,6 @@ public class WaveManager : MonoBehaviour
             var spawnPos = wavePath[0];
             var enemyPrefab = enemiesPrefabs.RandomContent();
             var newEnemy = Instantiate(enemyPrefab, WorldGrid.Instance.GridToWorld(spawnPos.x, spawnPos.y), Quaternion.identity);
-            if(newEnemy.TryGetModule(out HealthModule enemyHealth))
-            {
-                var enemyIndex = i;
-                enemyHealth.OnDeath.AddListener((_) => DestroyEnemy(enemyIndex));
-            }
 
             spawnedEnemies.Add(new MovingEnemy(newEnemy));
             yield return new WaitForSeconds(spawnInterval); // TODO: Pool it
@@ -487,10 +520,8 @@ public class WaveManager : MonoBehaviour
         }
     }
 
-    private void DestroyEnemy(int index)
+    private void GameOver(HealthModule _)
     {
-        var enemy = spawnedEnemies[index];
-        Destroy(enemy.entity.gameObject);
-        spawnedEnemies.RemoveAt(index);
+        SaveManager.Instance.Restart();
     }
 }

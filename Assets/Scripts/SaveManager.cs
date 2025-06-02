@@ -1,21 +1,39 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using UnityEditor.Overlays;
 using UnityEngine;
 
 public class SaveManager : MonoBehaviour
 {
+    #region SINGLETON
+
+    public static SaveManager Instance { get; private set; }
+
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    #endregion
+
+
     [SerializeField] private InventorySO inventory;
 
-    private readonly string savePath = Application.persistentDataPath + "/savefile.json";
+    private string savePath = Application.persistentDataPath + "/savefile.json";
 
     public void SaveGame()
     {
         SaveData saveData = new SaveData();
         saveData.waveNumber = WaveManager.Instance.CurrentWave;
 
-        for(int i =0; i < inventory.ItemCount; i++)
+        for (int i = 0; i < inventory.ItemCount; i++)
         {
             var item = inventory.GetItemFromIndex(i);
             saveData.items.Add(new SavedInventoryItem(item));

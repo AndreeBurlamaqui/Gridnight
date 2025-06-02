@@ -69,14 +69,15 @@ public class InventoryPanelUI : BasePanelUI
         if (state)
         {
             playetInput.OnNavigate.AddListener(NavigateSelection);
-            playetInput.OnInteract.AddListener(InteractOnSelected);
+            playetInput.OnInteract.AddListener(PickSelection);
         }
         else
         {
             playetInput.OnNavigate.RemoveListener(NavigateSelection);
-            playetInput.OnInteract.RemoveListener(InteractOnSelected);
+            playetInput.OnInteract.RemoveListener(PickSelection);
         }
     }
+
 
     private void SetupInventory(InventorySO inventorySO)
     {
@@ -220,7 +221,7 @@ public class InventoryPanelUI : BasePanelUI
         return slots[ItemGrid.SelectedToIndex(layout)];
     }
 
-    public void InteractOnSelected()
+    private void InteractOnSelected()
     {
         if(!ItemGrid.TryGetSelectedValue(out var selectedItem))
         {
@@ -236,36 +237,48 @@ public class InventoryPanelUI : BasePanelUI
             actionsUI[a].gameObject.SetActive(false);
         }
 
-        var moveAct = actionsUI[0];
-        moveAct.Setup("Move", PickSelection);
-        moveAct.Select();
-        moveAct.gameObject.SetActive(true);
         int actionIndex = 1;
         foreach(var action in selectedItem.GetActions())
         {
             var actUI = actionsUI[actionIndex];
-            actUI.Setup(action.Title, () => ExecuteAction(action));
+            actUI.Setup(action.Title, () => ExecuteAction(selectedItem, action));
             actUI.gameObject.SetActive(true);
             actionIndex++;
         }
 
+        var moveAct = actionsUI[0];
+        moveAct.Setup("Move", () => MoveAction(selectedItem));
+        moveAct.Select();
+        moveAct.gameObject.SetActive(true);
+
+        fromPickSelect = ItemGrid.CurrentSelected;
         SetInteractable(false); // So it doesn't move the selection
     }
 
-    private void ExecuteAction(ItemAction action)
-    {
-        if (!ItemGrid.TryGetSelectedValue(out var selectedItem))
-        {
-            return;
-        }
 
+    private void ExecuteAction(ItemSO selectedItem, ItemAction action)
+    {
         // Execute and close
+        Debug.Log($"Executing action {action.name} by {selectedItem.Title}");
+        ItemGrid.Select(selectedItem.SlotGridPosition.x, selectedItem.SlotGridPosition.y); // Ensure it's selected
         action.Execute(selectedItem);
+        OnActionExecuted();
+        UpdateInventory();
+        Refresh();
+    }
+    private void MoveAction(ItemSO selectedItem)
+    {
+
+        Debug.Log($"Executing action MOVE by {selectedItem.Title}");
+        OnActionExecuted();
+        PickSelection();
+    }
+
+    private void OnActionExecuted()
+    {
         var rectAction = actionLayout.transform as RectTransform;
         rectAction.DOAnchorPosY(((RectTransform)actionLayout.transform).rect.height, 0.15f).SetEase(Ease.InBack);
         SetInteractable(true);
-        UpdateInventory();
-        Refresh();
     }
 
     public void PickSelection()

@@ -15,7 +15,7 @@ public class HealthModule : EntityModule
     /// <summary>
     /// Callback the range of Current/Start HP
     /// </summary>
-    public UnityEvent<float> OnHit;
+    public UnityEvent<float> OnUpdate;
 
     private string DamageTweenID => "DAMAGE_TWEEN_" + GetInstanceID();
     private string HealTweenID => "HEAL_TWEEN_" + GetInstanceID();
@@ -28,10 +28,16 @@ public class HealthModule : EntityModule
 
     public void DamageBy(int dmg)
     {
+        if (CurrentHP <= 0)
+        {
+            Kill();
+            return;
+        }
+
         DOTween.Kill(DamageTweenID, true);
         var oldRot = transform.rotation;
         CurrentHP -= dmg;
-        OnHit?.Invoke((float)CurrentHP / (float)StartHP);
+        OnUpdate?.Invoke((float)CurrentHP / (float)StartHP);
 
         transform.DOShakeRotation(0.15f, 55, 25, randomnessMode: ShakeRandomnessMode.Harmonic)
             .OnComplete(OnFinishTween)
@@ -53,7 +59,8 @@ public class HealthModule : EntityModule
             return; // Can't heal what's already dead
         }
 
-        CurrentHP += amount;
+        CurrentHP = Math.Min(CurrentHP + amount, CurrentHP);
+        OnUpdate?.Invoke((float)CurrentHP / (float)StartHP);
         DOTween.Kill(HealTweenID, true);
         var oldScale = transform.localScale;
         transform.DOPunchScale(Vector3.one, 0.25f)

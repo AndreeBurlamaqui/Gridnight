@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 1590357271111630350}
   - component: {fileID: 4045884125684587456}
   - component: {fileID: 2993208665971696633}
+  - component: {fileID: 7989886301833544083}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Enemy
@@ -78,6 +79,21 @@ MonoBehaviour:
   <StartHP>k__BackingField: 1
   <CurrentHP>k__BackingField: 0
   OnDeath:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 7989886301833544083}
+        m_TargetAssemblyTypeName: DropModule, Assembly-CSharp
+        m_MethodName: Drop
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  OnHit:
     m_PersistentCalls:
       m_Calls: []
 --- !u!114 &1590357271111630350
@@ -157,6 +173,25 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 0.5
+--- !u!114 &7989886301833544083
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3624206086303831597}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13fb5805c03d8d241802ef7e96ec8f71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  options:
+  - {fileID: 5279823897105409348, guid: 99d14f54ebdd1804bb35b8d5f61e056c, type: 3}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1 &6050528362435081158
 GameObject:
   m_ObjectHideFlags: 0
