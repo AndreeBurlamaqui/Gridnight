@@ -2,13 +2,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEngine.EventSystems.EventTrigger;
 
 public class BaseEntity : MonoBehaviour
 {
     private readonly Dictionary<Type, EntityModule> attachedModules = new();
 
-    private IEnumerator Start()
+    private void Awake()
     {
         // Get every module attached to this entity
         var attachedModules = GetComponentsInChildren<EntityModule>();
@@ -16,9 +15,11 @@ public class BaseEntity : MonoBehaviour
         {
             AttachModule(attachedModules[a]);
         }
+    }
 
-        yield return new WaitForEndOfFrame();
-
+    private IEnumerator Start()
+    {
+        yield return null;
         Initiate();
     }
 

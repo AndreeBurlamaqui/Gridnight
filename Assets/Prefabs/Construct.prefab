@@ -97,7 +97,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4761485465415555774}
   - component: {fileID: 4593450977443552177}
-  - component: {fileID: 5208497989497105550}
+  - component: {fileID: 7461410874983455114}
   m_Layer: 0
   m_Name: Construct
   m_TagString: Untagged
@@ -133,7 +133,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f659978583c8ec4488e4f8f2d7256106, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &5208497989497105550
+--- !u!114 &7461410874983455114
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -142,11 +142,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4655260298483532212}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6a48c061b9db29940877e622e40fc5b8, type: 3}
+  m_Script: {fileID: 11500000, guid: 23c5961aeb4c2d04b8833a7650776674, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <StartHP>k__BackingField: 3
-  <CurrentHP>k__BackingField: 0
-  OnDeath:
-    m_PersistentCalls:
-      m_Calls: []
+  <Model>k__BackingField: {fileID: 7925707849084544605}

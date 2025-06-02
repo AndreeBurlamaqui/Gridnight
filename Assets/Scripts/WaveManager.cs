@@ -54,12 +54,22 @@ public class WaveManager : MonoBehaviour
     public class Construct
     {
         public BaseEntity instance;
-        public bool isActive;
+        public bool IsActive { get; private set; }
 
         public Construct(BaseEntity _instance)
         {
             instance = _instance;
-            isActive = false;
+            SetActive(false);
+        }
+
+        public void SetActive(bool newState)
+        {
+            IsActive = newState;
+        
+            if(instance.TryGetModule(out VisualModule visual))
+            {
+                visual.Model.DOFade(IsActive ? 1 : 0.25f, 0.25f);
+            }
         }
     }
 
@@ -73,7 +83,7 @@ public class WaveManager : MonoBehaviour
     private void Start()
     {
         curWave = 0;
-        waveSlider.DOFillAmount(1, waveTime).From(0).OnComplete(OnWaveFinish); // First few seconds to gather resources
+        StartNewWave();
     }
 
     private void StartNewWave()
@@ -83,6 +93,7 @@ public class WaveManager : MonoBehaviour
         GenerateWaveRequirements(curWave);
 
         // Create path
+        WorldGrid.Instance.ClearTilemap();
         StartCoroutine(GenerateRandomPath());
         BuildConstructNearPath();
 
@@ -194,7 +205,14 @@ public class WaveManager : MonoBehaviour
             if(requirement.item == item)
             {
                 amountRequired = requirement.amountRequired - requirement.amountAchieved;
-                return true;
+                if (amountRequired > 0)
+                {
+                    return true;
+                }
+                else
+                {
+                    break; // It's already filled
+                }
             }
         }
 
@@ -208,6 +226,10 @@ public class WaveManager : MonoBehaviour
         {
             requirement.amountAchieved += amount;
             curWaveRequirements[item] = requirement;
+            if( requirement.amountAchieved >= requirement.amountRequired)
+            {
+                ActivateNextConstruct();
+            }
             Debug.Log($"Requirement {item.Title} {requirement.amountAchieved}/{requirement.amountRequired}");
         }
     }
@@ -314,23 +336,18 @@ public class WaveManager : MonoBehaviour
         Vector3 spawnPos = WorldGrid.Instance.GridToWorld(selectedTile);
 
         BaseEntity newConstruct = Instantiate(constructPrefab, spawnPos, Quaternion.identity);
-        if(newConstruct.TryGetModule(out HealthModule health))
-        {
-            DOVirtual.DelayedCall(constructLifetime, () => health.Kill());
-            health.OnDeath.AddListener(OnConstructFadeOut);
-        }
+        DOVirtual.DelayedCall(constructLifetime, () => OnConstructFadeOut(newConstruct));
         activatedConstructs.Add(new Construct(newConstruct));
 
         Debug.Log($"Construct activated at {spawnPos}.");
     }
 
-    private void OnConstructFadeOut(HealthModule constructHealth)
+    private void OnConstructFadeOut(BaseEntity constructDead)
     {
-        constructHealth.OnDeath.RemoveListener(OnConstructFadeOut);
         for(int a = activatedConstructs.Count - 1; a >= 0; a--)
         {
             var activeConstruct = activatedConstructs[a];
-            if (activeConstruct.instance == constructHealth.Entity)
+            if (activeConstruct.instance == constructDead)
             {
                 activatedConstructs.RemoveAt(a);
                 break;
@@ -343,9 +360,9 @@ public class WaveManager : MonoBehaviour
         for(int a = 0; a < activatedConstructs.Count; a++)
         {
             var activeConstruct = activatedConstructs[a];
-            if (!activeConstruct.isActive)
+            if (!activeConstruct.IsActive)
             {
-                activeConstruct.isActive = true;
+                activeConstruct.SetActive(true);
                 //if(activeConstruct.instance.TryGetModule(out AttackNearbyModule atk))
                 //{
 

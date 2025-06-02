@@ -183,6 +183,11 @@ public class WorldGrid : MonoBehaviour
         tilemap.RefreshAllTiles();
     }
 
+    public void ClearTilemap()
+    {
+        tilemap.ClearAllTiles();
+        tilemap.RefreshAllTiles();
+    }
 
     private void OnDrawGizmos()
     {
