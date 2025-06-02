@@ -40,6 +40,7 @@ public class WaveManager : MonoBehaviour
     [Header("ENVIRONMENT")]
     [SerializeField] private RuleTile pathTile;
     [SerializeField] private SpawnableItem[] spawnableItems;
+    private List<BaseEntity> spawnedItems = new();
     [System.Serializable]
     public class SpawnableItem
     {
@@ -278,6 +279,14 @@ public class WaveManager : MonoBehaviour
 
     private IEnumerator PopulateEnvironment()
     {
+        // Clear old ones first
+        for (int s = 0; s < spawnedItems.Count; s++)
+        {
+            Destroy(spawnedItems[s].gameObject);
+        }
+        spawnedItems.Clear();
+
+        // Then create for this wave
         foreach (var requirement in curWaveRequirements)
         {
             ItemSO item = requirement.Key;
@@ -293,7 +302,8 @@ public class WaveManager : MonoBehaviour
             {
                 Vector3 spawnPos = GetRandomSpawnPosition();
 
-                Instantiate(spawnable.entityPrefab, spawnPos, Quaternion.identity);
+                var newSpawnItem = Instantiate(spawnable.entityPrefab, spawnPos, Quaternion.identity);
+                spawnedItems.Add(newSpawnItem);
                 yield return waitWaveBuild;
             }
         }
@@ -329,6 +339,11 @@ public class WaveManager : MonoBehaviour
         do
         {
             randomGridPos = new Vector2Int(Random.Range(0, gridSize.x), Random.Range(0, gridSize.y));
+            var worldPos = WorldGrid.Instance.GridToWorld(randomGridPos);
+            if(WorldGrid.Instance.TryGetValidPositionAround(worldPos, out var validatedPos))
+            {
+                randomGridPos = WorldGrid.Instance.WorldToGrid(validatedPos);
+            }
         }
         while (wavePath.Contains(randomGridPos)); // Avoid spawning on the path
 
