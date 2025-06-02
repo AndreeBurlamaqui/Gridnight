@@ -71,6 +71,11 @@ public class WaveManager : MonoBehaviour
             {
                 visual.Model.DOFade(IsActive ? 1 : 0.25f, 0.25f);
             }
+
+            if(instance.TryGetModule(out AttackNearbyModule attack))
+            {
+                attack.SetAbility(IsActive);
+            }
         }
     }
 
@@ -385,10 +390,6 @@ public class WaveManager : MonoBehaviour
             if (!activeConstruct.IsActive)
             {
                 activeConstruct.SetActive(true);
-                //if(activeConstruct.instance.TryGetModule(out AttackNearbyModule atk))
-                //{
-
-                //}
                 break;
             }
         }
@@ -454,7 +455,7 @@ public class WaveManager : MonoBehaviour
                     // Still moving towards end
                     WorldGrid.Instance.RequestMoveGridPosition(enemy.entity, wavePath[enemy.currentPathIndex]);
                 }
-                Debug.Log($"Enemy {enemy.entity.gameObject.name} moving {enemy.currentPathIndex}/{wavePath.Count}");
+                //Debug.Log($"Enemy {enemy.entity.gameObject.name} moving {enemy.currentPathIndex}/{wavePath.Count}");
             }
         }
     }
