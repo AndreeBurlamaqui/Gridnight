@@ -52,6 +52,8 @@ public class ItemSO : ScriptableObject
    
     public void UpdateSlotPosition(int x, int y)
     {
-        SlotGridPosition.Set(x, y);
+        SlotGridPosition = new(x, y);
     }
+
+    public bool HasSavedSlotPosition() => SlotGridPosition.x >= 0 && SlotGridPosition.y >= 0;
 }

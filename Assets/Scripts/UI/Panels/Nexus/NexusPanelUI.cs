@@ -123,7 +123,7 @@ public class NexusPanelUI : BasePanelUI
                 if(selectedItem.TotalAmount <= 0)
                 {
                     // Remove from inventory
-                    inventory.items.Remove(selectedItem);
+                    inventory.RemoveItem(selectedItem);
                 }
 
                 inventoryPanel.UpdateInventory();

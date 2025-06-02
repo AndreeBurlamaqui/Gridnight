@@ -27,6 +27,7 @@ public class InventoryPanelUI : BasePanelUI
         if(panelSO is InventorySO inventorySO)
         {
             SetupInventory(inventorySO);
+            inventorySO.OnItemRemove.AddListener(OnItemRemoved);
         }
     }
 
@@ -61,7 +62,7 @@ public class InventoryPanelUI : BasePanelUI
             var newSlot = Instantiate(slotUI, layout.transform);
             slots.Add(newSlot);
 
-            var itemSlot = i < inventory.items.Count ? inventory.items[i] : null;
+            var itemSlot = i < inventory.ItemCount ? inventory.GetItemFromIndex(i) : null;
 
             // Set the item on the grid
             (int x, int y) = ItemGrid.IndexToGrid(i, layout);
@@ -77,24 +78,28 @@ public class InventoryPanelUI : BasePanelUI
 
     public void UpdateInventory()
     {
-        // Clear every item grid
-        ItemGrid.Clear();
-
-        for(int i = 0; i < inventory.items.Count; i++)
+        for(int i = 0; i < inventory.ItemCount; i++)
         {
-            var item = inventory.items[i];
+            var item = inventory.GetItemFromIndex(i);
+            if (item.TotalAmount <= 0)
+            {
+                // Should not be inventory
+                inventory.RemoveItem(item);
+                continue;
+            }
+
             // If the item has a slot saved, add it to that
             // Otherwise, find a free slot
             int itemXPos = -1;
             int itemYPos = -1;
-            if (item.SlotGridPosition.x < 0 || item.SlotGridPosition.y < 0)
-            {
-                (itemXPos, itemYPos) = ItemGrid.FindFreePosition();
-            }
-            else
+            if (item.HasSavedSlotPosition())
             {
                 itemXPos = item.SlotGridPosition.x;
                 itemYPos = item.SlotGridPosition.y;
+            }
+            else
+            {
+                (itemXPos, itemYPos) = ItemGrid.FindFreePosition();
             }
 
             if(itemXPos < 0 || itemYPos < 0)
@@ -197,6 +202,7 @@ public class InventoryPanelUI : BasePanelUI
                 // If something in the slot, then we need to swap
                 Debug.Log("Droping on slot filled. Swapping");
                 ItemGrid.SetValue(fromPickSelect.x, fromPickSelect.y, selectedSlot);
+                selectedSlot.UpdateSlotPosition(fromPickSelect.x, fromPickSelect.y);
             }
             else
             {
@@ -205,6 +211,7 @@ public class InventoryPanelUI : BasePanelUI
                 ItemGrid.SetValue(fromPickSelect.x, fromPickSelect.y, null);
             }
 
+            fromSlot.UpdateSlotPosition(ItemGrid.CurrentSelected.x, ItemGrid.CurrentSelected.y);
             ItemGrid.SetSelectedValue(fromSlot);
             Refresh();
         }
@@ -248,7 +255,19 @@ public class InventoryPanelUI : BasePanelUI
             return false; // Nothing on origin (shouldn't happen)
         }
 
-
         return true;
+    }
+
+    public void OnItemRemoved(ItemSO itemRemoved)
+    {
+        if(!itemRemoved.HasSavedSlotPosition())
+        {
+            // Item wasn't on grid yet
+            return;
+        }
+
+        Debug.Log($"Item {itemRemoved.Title} was removed from inventory, removing from grid position {itemRemoved.SlotGridPosition}");
+        ItemGrid.SetValue(itemRemoved.SlotGridPosition.x, itemRemoved.SlotGridPosition.y, null);
+        itemRemoved.UpdateSlotPosition(-1, -1); // Reset slot position
     }
 }

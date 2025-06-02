@@ -35,7 +35,7 @@ public class ItemDrop : MonoBehaviour
 
     private void OnItemCollected()
     {
-        backpack.items.Add(item);
+        backpack.AddItem(item);
         item.Add(quantity);
         Debug.Log($"Player collected {item.Title}({item.TotalAmount})");
         Destroy(gameObject);
