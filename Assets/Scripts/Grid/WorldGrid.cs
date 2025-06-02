@@ -22,18 +22,20 @@ public class WorldGrid : MonoBehaviour
 
     #endregion
 
-    [SerializeField] private Vector2Int worldSize;
+    [field: SerializeField] public Vector2Int WorldSize { get; private set; }
     [SerializeField] private int cellSize;
+    [SerializeField] private Tilemap tilemap;
+    
     private BaseGrid<BaseEntity> entitiesGrid;
-    private Tilemap tilemap;
 
     public bool IsInitiated { get; private set; }
-    public Vector2Int Origin => new Vector2Int((int)transform.position.x, (int)transform.position.y) + (worldSize / 2);
+    public Vector2Int Origin => new Vector2Int((int)transform.position.x, (int)transform.position.y) + (WorldSize / 2);
 
     private void Start()
     {
-        entitiesGrid = new BaseGrid<BaseEntity>(worldSize.x, worldSize.y, cellSize);
+        entitiesGrid = new BaseGrid<BaseEntity>(WorldSize.x, WorldSize.y, cellSize);
         IsInitiated = true;
+        gameObject.GetOrAddComponent<Grid>().cellSize = cellSize * Vector3.one;
     }
 
     public void Spawn(BaseEntity entity, Vector3 worldPos)
@@ -121,7 +123,7 @@ public class WorldGrid : MonoBehaviour
     public Vector2 GridToWorld(Vector2 pos) => GridToWorld((int)pos.x, (int)pos.y);
     public Vector2 GridToWorld(int x, int y)
     {
-        Vector3 halfSize = new Vector3(worldSize.x * cellSize, worldSize.y * cellSize) * 0.5f;
+        Vector3 halfSize = new Vector3(WorldSize.x * cellSize, WorldSize.y * cellSize) * 0.5f;
         Vector3 localPos = new Vector3(x * cellSize, y * cellSize);
         return transform.position - halfSize + localPos + (0.5f * cellSize * Vector3.one);
     }
@@ -133,7 +135,7 @@ public class WorldGrid : MonoBehaviour
 
     public Vector2Int WorldToGrid(Vector3 worldPos)
     {
-        Vector3 halfSize = new Vector3(worldSize.x * cellSize, worldSize.y * cellSize) * 0.5f;
+        Vector3 halfSize = new Vector3(WorldSize.x * cellSize, WorldSize.y * cellSize) * 0.5f;
 
         // Calculate local position relative to bottom-left corner
         Vector3 localPos = worldPos - (transform.position - halfSize);
@@ -174,13 +176,20 @@ public class WorldGrid : MonoBehaviour
         return false;
     }
 
+    public void PaintTile(Vector3Int position, RuleTile tile)
+    {
+        var worldPos = GridToWorld(position.x, position.y);
+        tilemap.SetTile(tilemap.WorldToCell(worldPos), tile);
+        tilemap.RefreshAllTiles();
+    }
+
 
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.gray;
-        for (int x = 0; x < worldSize.x; x++)
+        for (int x = 0; x < WorldSize.x; x++)
         {
-            for (int y = 0; y < worldSize.y; y++)
+            for (int y = 0; y < WorldSize.y; y++)
             {
                 var gizmosPosition = GridToWorld(x, y) + Vector2.one * (cellSize / 2f);
                 var gizmosSize = Vector3.one * cellSize;
