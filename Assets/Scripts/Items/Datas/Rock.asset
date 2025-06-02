@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <Icon>k__BackingField: {fileID: 402605497, guid: ed4edcc13cc60764181cc25a7679faf6, type: 3}
   <Title>k__BackingField: Rock
-  <Description>k__BackingField: A pebble
+  <Description>k__BackingField: A pebble that weirdly looks like a coin
   <StartAmount>k__BackingField: 0
   foodItem: {fileID: 11400000}
   foodAmount: 1
+  <TotalAmount>k__BackingField: 0
+  <SlotGridPosition>k__BackingField: {x: -1, y: -1}

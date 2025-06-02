@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System;
 using System.Collections.Generic;
 using TMPro;
@@ -34,13 +35,17 @@ public class InventoryPanelUI : BasePanelUI
         if (ItemGrid != null)
         {
             ItemGrid.Select(0, 0);
+            UpdateInventory();
             Refresh();
         }
     }
 
     private void OnDisable()
     {
-        PickManager.Instance.Drop();
+        if (PickManager.Instance != null)
+        {
+            PickManager.Instance.Drop();
+        }
     }
 
     private void SetupInventory(InventorySO inventorySO)
@@ -66,7 +71,37 @@ public class InventoryPanelUI : BasePanelUI
 
         // Select first option and refresh
         slots[ItemGrid.SelectedToIndex(layout)].SetSelect(true);
+        UpdateInventory();
         Refresh();
+    }
+
+    private void UpdateInventory()
+    {
+        for(int i = 0; i < inventory.items.Count; i++)
+        {
+            var item = inventory.items[i];
+            // If the item has a slot saved, add it to that
+            // Otherwise, find a free slot
+            int itemXPos = -1;
+            int itemYPos = -1;
+            if (item.SlotGridPosition.x < 0 || item.SlotGridPosition.y < 0)
+            {
+                (itemXPos, itemYPos) = ItemGrid.FindFreePosition();
+            }
+            else
+            {
+                itemXPos = item.SlotGridPosition.x;
+                itemYPos = item.SlotGridPosition.y;
+            }
+
+            if(itemXPos < 0 || itemYPos < 0)
+            {
+                continue; // Invalid position
+            }
+
+            item.UpdateSlotPosition(itemXPos, itemYPos);
+            ItemGrid.SetValue(itemXPos, itemYPos, item);
+        }
     }
 
     private void UpdateSlotSelect((Vector2Int oldSelect, Vector2Int newSelect) selectUpdate)
@@ -100,15 +135,23 @@ public class InventoryPanelUI : BasePanelUI
             }
         }
 
+        bool showItemInfo = false;
         if (ItemGrid.TryGetSelectedValue(out var selectedItem))
         {
-            selectedDescriptionLabel.text = selectedItem.Title;
+            selectedTitleLabel.text = selectedItem.Title;
             selectedDescriptionLabel.text = selectedItem.Description;
 
             var (foodItem, foodAmount) = selectedItem.GetFood();
             foodIcon.sprite = foodItem.Icon;
+            foodIcon.preserveAspect = true;
             foodLabel.text = "x" + foodAmount;
+            showItemInfo = true;
         }
+
+        selectedTitleLabel.gameObject.SetActive(showItemInfo);
+        selectedDescriptionLabel.gameObject.SetActive(showItemInfo);
+        foodIcon.gameObject.SetActive(showItemInfo);
+        foodLabel.gameObject.SetActive(showItemInfo);
     }
 
     public void NavigateSelection(Vector2Int direction)

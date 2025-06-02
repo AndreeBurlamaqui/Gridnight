@@ -133,6 +133,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99c56b8129acbb04cbd0f42028559799, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  backpack: {fileID: 11400000, guid: a4359e40cc10b244e824282bc271934a, type: 2}
   item: {fileID: 11400000, guid: 8282245ba7b0a0645ada0e9c9496b79a, type: 2}
   quantity: 1
 --- !u!58 &3563799066516500253

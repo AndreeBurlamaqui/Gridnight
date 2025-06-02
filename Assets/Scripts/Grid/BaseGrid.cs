@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -199,6 +200,22 @@ public class BaseGrid<T>
         }
 
         return index;
+    }
+
+    public (int x, int y) FindFreePosition()
+    {
+        for (int x = 0; x < gridArray.GetLength(0); x++) // first dimension
+        {
+            for (int y = 0; y < gridArray.GetLength(1); y++) // second dimension
+            {
+                if(!IsPositionFilled(x, y))
+                {
+                    return (x, y);
+                }
+            }
+        }
+
+        return (-1, -1);
     }
 
 }

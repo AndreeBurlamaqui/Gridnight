@@ -43,6 +43,11 @@ public class PickManager : MonoBehaviour
 
     public void Drop()
     {
+        if(pickClone == null)
+        {
+            return;
+        }
+
         Destroy(pickClone.gameObject);
     }
 }

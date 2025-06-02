@@ -14,7 +14,8 @@ public class ItemSO : ScriptableObject
     [SerializeField] private int foodAmount;
 
     [field: Header("RUNTIME")]
-    [field: SerializeField, NonSerialized] public int TotalAmount { get; private set; }
+    [field: SerializeField] public int TotalAmount { get; private set; }
+    [field: SerializeField] public Vector2Int SlotGridPosition { get; private set; }
 
 #if UNITY_EDITOR
     private void OnEnable()
@@ -39,6 +40,7 @@ public class ItemSO : ScriptableObject
     public void ResetData()
     {
         TotalAmount = StartAmount;
+        SlotGridPosition = new Vector2Int(-1, -1);
     }
 
     public void Add(int amount)
@@ -48,4 +50,8 @@ public class ItemSO : ScriptableObject
 
     public (ItemSO food, int amount) GetFood() => (foodItem, foodAmount * TotalAmount);
    
+    public void UpdateSlotPosition(int x, int y)
+    {
+        SlotGridPosition.Set(x, y);
+    }
 }

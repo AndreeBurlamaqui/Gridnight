@@ -18,6 +18,7 @@ public class InventorySlotUI : MonoBehaviour
         if (item != null)
         {
             icon.sprite = item.Icon;
+            icon.preserveAspect = true;
             amountLabel.text = item.TotalAmount.ToString("00");
         }
 

@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class ItemDrop : MonoBehaviour
 {
+    [SerializeField] private InventorySO backpack;
     [SerializeField] private ItemSO item;
     [SerializeField] private int quantity;
     private bool collected = false;
@@ -34,8 +35,9 @@ public class ItemDrop : MonoBehaviour
 
     private void OnItemCollected()
     {
-        Debug.Log($"Player collected {item.Title}({item.TotalAmount})");
+        backpack.items.Add(item);
         item.Add(quantity);
+        Debug.Log($"Player collected {item.Title}({item.TotalAmount})");
         Destroy(gameObject);
     }
 }
