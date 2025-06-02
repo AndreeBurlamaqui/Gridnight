@@ -30,11 +30,12 @@ public class WaveManager : MonoBehaviour
     [SerializeField] private Image waveSlider;
 
     [Header("SETTINGS")]
-    [SerializeField] private int baseTypes = 1;
-    [SerializeField] private int baseQuantity = 3;
+    [SerializeField] private int baseRequirementTypes = 1;
+    [SerializeField] private int baseRequiremntQuantity = 3;
     [SerializeField] private float difficultyMultiplier = 1.5f;
     [SerializeField] private float waveTime = 25;
     [SerializeField] private int basePathLength = 10;
+    [SerializeField] private int baseEnemyQuantity = 5;
 
     [Header("ENVIRONMENT")]
     [SerializeField] private RuleTile pathTile;
@@ -73,6 +74,22 @@ public class WaveManager : MonoBehaviour
         }
     }
 
+    [Header("ENEMIES")]
+    [SerializeField] private BaseEntity[] enemiesPrefabs;
+    [SerializeField] private float enemyJumpSpeed = 0.35f;
+    private List<MovingEnemy> spawnedEnemies = new();
+    private class MovingEnemy
+    {
+        public BaseEntity entity;
+        public int currentPathIndex;
+
+        public MovingEnemy(BaseEntity entity)
+        {
+            this.entity = entity;
+            currentPathIndex = 0;
+        }
+    }
+
     public int MaximumPossibleFoods => possibleFoods.Length;
 
     Dictionary<ItemSO, (int amountRequired, int amountAchieved)> curWaveRequirements = new();
@@ -84,6 +101,7 @@ public class WaveManager : MonoBehaviour
     {
         curWave = 0;
         StartNewWave();
+        StartCoroutine(MoveEnemies());
     }
 
     private void StartNewWave()
@@ -99,18 +117,22 @@ public class WaveManager : MonoBehaviour
 
         // Populate with new environment but avoid path
         StartCoroutine(PopulateEnvironment());
+
+        // And start spawning enemies
+        int enemyCount = Mathf.RoundToInt(baseEnemyQuantity * Mathf.Pow(difficultyMultiplier, curWave));
+        StartCoroutine(SpawnEnemiesOverWave(enemyCount));
     }
 
     public void GenerateWaveRequirements(int waveNumber)
     {
         curWaveRequirements.Clear();
-        int typesRequired = Mathf.Min(baseTypes + Mathf.FloorToInt(waveNumber / 2f), MaximumPossibleFoods);
+        int typesRequired = Mathf.Min(baseRequirementTypes + Mathf.FloorToInt(waveNumber / 2f), MaximumPossibleFoods);
 
         var randomTypes = Randomizer.CreateRandomOrder(typesRequired, true); // NOTE: When type required = 1 it'll always be rock
         for (int r = 0; r < randomTypes.Length; r++)
         {
             var foodItem = possibleFoods[randomTypes[r]];
-            int quantity = Mathf.RoundToInt(baseQuantity * Mathf.Pow(difficultyMultiplier, waveNumber));
+            int quantity = Mathf.RoundToInt(baseRequiremntQuantity * Mathf.Pow(difficultyMultiplier, waveNumber));
 
             // Some randomness variation
             quantity += Random.Range(-1, 2);
@@ -123,7 +145,7 @@ public class WaveManager : MonoBehaviour
     public IEnumerator GenerateRandomPath()
     {
         // Start will always be on the right side of the screen
-        Vector2Int start = new Vector2Int(WorldGrid.Instance.WorldSize.x, Random.Range(0, WorldGrid.Instance.WorldSize.y));
+        Vector2Int start = new Vector2Int(WorldGrid.Instance.WorldSize.x - 1, Random.Range(0, WorldGrid.Instance.WorldSize.y));
         Vector2Int end = WorldGrid.Instance.WorldToGrid(nexusEntity.transform.position);
 
         wavePath = new List<Vector2Int> { start };
@@ -382,5 +404,65 @@ public class WaveManager : MonoBehaviour
         adjacents.Add(tile + Vector2Int.right);
 
         return adjacents;
+    }
+
+    private IEnumerator SpawnEnemiesOverWave(int totalEnemies)
+    {
+        float spawnInterval = waveTime / totalEnemies;
+        Debug.Log($"Wave {curWave}: Spawning {totalEnemies} over {waveTime} each {spawnInterval} seconds");
+        for (int i = 0; i < totalEnemies; i++)
+        {
+            var spawnPos = wavePath[0];
+            var enemyPrefab = enemiesPrefabs.RandomContent();
+            var newEnemy = Instantiate(enemyPrefab, WorldGrid.Instance.GridToWorld(spawnPos.x, spawnPos.y), Quaternion.identity);
+            spawnedEnemies.Add(new MovingEnemy(newEnemy));
+            yield return new WaitForSeconds(spawnInterval); // TODO: Pool it
+        }
+    }
+
+    private IEnumerator MoveEnemies()
+    {
+        var waitJump = new WaitForSeconds(enemyJumpSpeed);
+        while (true)
+        {
+            if (spawnedEnemies == null)
+            {
+                yield return null;
+                continue;
+            }
+
+            yield return waitJump;
+            yield return null; // To  ensure that every spawned enemy will be initiated
+
+            for (int e = 0; e < spawnedEnemies.Count; e++)
+            {
+                var enemy = spawnedEnemies[e];
+                enemy.currentPathIndex += 1;
+                if (!enemy.entity.TryGetModule(out MovementModule movement))
+                {
+                    continue; 
+                }
+
+                if (enemy.currentPathIndex >= wavePath.Count)
+                {
+                    // Reached nexus. Attack and then destroy
+                    enemy.entity.Hit(nexusEntity);
+                    nexusEntity.Hit(enemy.entity); // the enemy health will be the attack count
+                }
+                else
+                {
+                    // Still moving towards end
+                    WorldGrid.Instance.RequestMoveGridPosition(enemy.entity, wavePath[enemy.currentPathIndex]);
+                }
+                Debug.Log($"Enemy {enemy.entity.gameObject.name} moving {enemy.currentPathIndex}/{wavePath.Count}");
+            }
+        }
+    }
+
+    private void DestroyEnemy(int index)
+    {
+        var enemy = spawnedEnemies[index];
+        Destroy(enemy.entity.gameObject);
+        spawnedEnemies.RemoveAt(index);
     }
 }

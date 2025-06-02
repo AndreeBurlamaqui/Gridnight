@@ -81,5 +81,10 @@ public class BaseEntity : MonoBehaviour
         {
             health.DamageBy(1);
         }
+
+        if (TryGetModule(out MovementModule movement))
+        {
+            movement.HitMove(otherEntity.transform.position);
+        }
     }
 }

@@ -64,9 +64,27 @@ public class WorldGrid : MonoBehaviour
         }
     }
 
-    public void RequestMove(BaseEntity entity, Vector2 direction)
+    public void RequestMoveDirection(BaseEntity entity, Vector2 direction)
     {
         if (!IsInitiated || direction == Vector2.zero)
+        {
+            // Missconfig
+            return;
+        }
+
+        if (!entitiesGrid.TryGetPosition(entity, out int x, out int y))
+        {
+            // Entity is not in grid
+            return;
+        }
+
+        var curGrid = new Vector2(x, y);
+        RequestMoveGridPosition(entity, direction + curGrid);
+    }
+
+    public void RequestMoveGridPosition(BaseEntity entity, Vector2 nextGrid)
+    {
+        if (!IsInitiated)
         {
             // Missconfig
             return;
@@ -78,20 +96,10 @@ public class WorldGrid : MonoBehaviour
             return;
         }
 
-        if (!entitiesGrid.TryGetPosition(entity, out int x, out int y))
-        {
-            // Entity is not in grid
-            return;
-        }
-
-        var curGrid = new Vector2(x, y);
-        var nextGrid = direction + curGrid;
         if (entitiesGrid.TryGetValue((int)nextGrid.x, (int)nextGrid.y, out var otherEntity))
         {
             // Notify entity that it's touching something
             entity.Hit(otherEntity);
-
-            movement.HitMove(GridToWorldCentered(nextGrid));
         }
         else
         {

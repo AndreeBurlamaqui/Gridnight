@@ -20,7 +20,7 @@ public class PlayerEntity : BaseEntity
     {
         if (playerInput.holdingMove)
         {
-            WorldGrid.Instance.RequestMove(this, playerInput.moveDirection);
+            WorldGrid.Instance.RequestMoveDirection(this, playerInput.moveDirection);
         }
     }
 

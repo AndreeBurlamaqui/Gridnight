@@ -6,7 +6,7 @@ public class MovementModule : EntityModule
 {
     [field: SerializeField] public float JumpCooldown { get; private set; }
 
-    [Header("RUNTIME")]
+    [field: Header("RUNTIME")]
     [field: SerializeField] public bool CanJump { get; private set; }
 
     private Sequence freeMoveSequence;
@@ -49,7 +49,7 @@ public class MovementModule : EntityModule
         hitMoveSequence.Append(transform.DOJump(hitPos, 0.25f, 1, 0.15f));
         hitMoveSequence.Append(transform.DOJump(originalPos, 0.25f, 1, 0.15f));
         hitMoveSequence.Append(DOVirtual.DelayedCall(JumpCooldown, EnableJump)); // Block jump to not spamm
-        
+
         CanJump = false;
     }
 
