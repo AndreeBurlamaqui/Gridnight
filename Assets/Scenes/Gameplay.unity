@@ -3076,6 +3076,8 @@ MonoBehaviour:
     representedItem: {fileID: 11400000, guid: ea017c8e8b10f0b458e053b03b4b3542, type: 2}
   - entityPrefab: {fileID: 1384816710624423007, guid: 4621d3c0cf8f1424fb2fb83fe0ec81ad, type: 3}
     representedItem: {fileID: 11400000, guid: ea017c8e8b10f0b458e053b03b4b3542, type: 2}
+  constructPrefab: {fileID: 4593450977443552177, guid: e3812f9dafb228640aab47399729226f, type: 3}
+  constructLifetime: 60
 --- !u!1001 &2007262790
 PrefabInstance:
   m_ObjectHideFlags: 0

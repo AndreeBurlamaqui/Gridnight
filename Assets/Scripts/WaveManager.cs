@@ -46,6 +46,23 @@ public class WaveManager : MonoBehaviour
         public ItemSO representedItem;
     }
 
+    [Header("CONSTRUCTS")]
+    [SerializeField] private BaseEntity constructPrefab;
+    [SerializeField] private float constructLifetime = 60;
+    private List<Construct> activatedConstructs = new();
+    [System.Serializable]
+    public class Construct
+    {
+        public BaseEntity instance;
+        public bool isActive;
+
+        public Construct(BaseEntity _instance)
+        {
+            instance = _instance;
+            isActive = false;
+        }
+    }
+
     public int MaximumPossibleFoods => possibleFoods.Length;
 
     Dictionary<ItemSO, (int amountRequired, int amountAchieved)> curWaveRequirements = new();
@@ -56,7 +73,7 @@ public class WaveManager : MonoBehaviour
     private void Start()
     {
         curWave = 0;
-        StartNewWave();
+        waveSlider.DOFillAmount(1, waveTime).From(0).OnComplete(OnWaveFinish); // First few seconds to gather resources
     }
 
     private void StartNewWave()
@@ -67,6 +84,7 @@ public class WaveManager : MonoBehaviour
 
         // Create path
         StartCoroutine(GenerateRandomPath());
+        BuildConstructNearPath();
 
         // Populate with new environment but avoid path
         StartCoroutine(PopulateEnvironment());
@@ -266,5 +284,86 @@ public class WaveManager : MonoBehaviour
         while (wavePath.Contains(randomGridPos)); // Avoid spawning on the path
 
         return WorldGrid.Instance.GridToWorld(randomGridPos);
+    }
+
+    private void BuildConstructNearPath()
+    {
+        // Find candidate tiles adjacent to path but not in path
+        List<Vector2Int> sideTiles = new List<Vector2Int>();
+
+        foreach (var pathTile in wavePath)
+        {
+            var adjacentTiles = GetAdjacentTiles(pathTile);
+
+            foreach (var tile in adjacentTiles)
+            {
+                if (!wavePath.Contains(tile) && !sideTiles.Contains(tile))
+                {
+                    sideTiles.Add(tile);
+                }
+            }
+        }
+
+        if (sideTiles.Count == 0)
+        {
+            Debug.LogWarning("No available side tiles for construct activation.");
+            return;
+        }
+
+        Vector2Int selectedTile = sideTiles[Random.Range(0, sideTiles.Count)];
+        Vector3 spawnPos = WorldGrid.Instance.GridToWorld(selectedTile);
+
+        BaseEntity newConstruct = Instantiate(constructPrefab, spawnPos, Quaternion.identity);
+        if(newConstruct.TryGetModule(out HealthModule health))
+        {
+            DOVirtual.DelayedCall(constructLifetime, () => health.Kill());
+            health.OnDeath.AddListener(OnConstructFadeOut);
+        }
+        activatedConstructs.Add(new Construct(newConstruct));
+
+        Debug.Log($"Construct activated at {spawnPos}.");
+    }
+
+    private void OnConstructFadeOut(HealthModule constructHealth)
+    {
+        constructHealth.OnDeath.RemoveListener(OnConstructFadeOut);
+        for(int a = activatedConstructs.Count - 1; a >= 0; a--)
+        {
+            var activeConstruct = activatedConstructs[a];
+            if (activeConstruct.instance == constructHealth.Entity)
+            {
+                activatedConstructs.RemoveAt(a);
+                break;
+            }
+        }
+    }
+
+    private void ActivateNextConstruct()
+    {
+        for(int a = 0; a < activatedConstructs.Count; a++)
+        {
+            var activeConstruct = activatedConstructs[a];
+            if (!activeConstruct.isActive)
+            {
+                activeConstruct.isActive = true;
+                //if(activeConstruct.instance.TryGetModule(out AttackNearbyModule atk))
+                //{
+
+                //}
+                break;
+            }
+        }
+    }
+
+    private List<Vector2Int> GetAdjacentTiles(Vector2Int tile)
+    {
+        List<Vector2Int> adjacents = new List<Vector2Int>();
+
+        adjacents.Add(tile + Vector2Int.up);
+        adjacents.Add(tile + Vector2Int.down);
+        adjacents.Add(tile + Vector2Int.left);
+        adjacents.Add(tile + Vector2Int.right);
+
+        return adjacents;
     }
 }

@@ -62,7 +62,7 @@ public class HealthModule : EntityModule
         }
     }
 
-    private void Kill()
+    public void Kill()
     {
         CurrentHP = 0; // Ensure it's dead
         OnDeath?.Invoke(this);
