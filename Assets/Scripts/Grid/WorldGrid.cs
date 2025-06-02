@@ -96,17 +96,25 @@ public class WorldGrid : MonoBehaviour
             return;
         }
 
-        if (entitiesGrid.TryGetValue((int)nextGrid.x, (int)nextGrid.y, out var otherEntity))
+        int x = (int)nextGrid.x;
+        int y = (int)nextGrid.y;
+        if (entitiesGrid.TryGetValue(x, y, out var otherEntity))
         {
-            // Notify entity that it's touching something
-            entity.Hit(otherEntity);
+            if (otherEntity != null)
+            {
+                // Notify entity that it's touching something
+                entity.Hit(otherEntity);
+            }
+            else
+            {
+                // Should be removed from grid
+                entitiesGrid.SetValue(x, y, null);
+            }
         }
-        else
-        {
-            // Free space, can move
-            //Debug.Log($"Entity {entity.gameObject.name} is on {curGrid} requesting to move towards {direction} -> {nextGrid}");
-            SetEntityPosition(entity, nextGrid);
-        }
+     
+        // Free space, can move
+        //Debug.Log($"Entity {entity.gameObject.name} is on {curGrid} requesting to move towards {direction} -> {nextGrid}");
+        SetEntityPosition(entity, nextGrid);
     }
 
     private void SetEntityPosition(BaseEntity entity, Vector2 targetGrid)
