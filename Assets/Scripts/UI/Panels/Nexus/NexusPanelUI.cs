@@ -21,12 +21,41 @@ public class NexusPanelUI : BasePanelUI
 
         playerInput.OnNavigate.AddListener(MoveInsideInventory);
         playerInput.OnInteract.AddListener(TryInteractOnSlot);
+
+        UpdateRequirements();
     }
 
     private void OnDisable()
     {
         playerInput.OnNavigate.RemoveListener(MoveInsideInventory);
         playerInput.OnInteract.RemoveListener(TryInteractOnSlot);
+    }
+    
+    private void UpdateRequirements()
+    {
+        if (slots.Count < WaveManager.Instance.MaximumPossibleFoods)
+        {
+            // Create the slots
+            for (int f = 0; f < WaveManager.Instance.MaximumPossibleFoods; f++)
+            {
+                slots.Add(Instantiate(slotUIPrefab, layout.transform));
+            }
+        }
+
+        for (int s = 0; s < slots.Count; s++)
+        {
+            // Ensure we won't have more than needed
+            slots[s].gameObject.SetActive(false);
+        }
+
+        int slotIndex = 0;
+        foreach (var requirement in WaveManager.Instance.LoopWaveRequirements())
+        {
+            var slot = slots[slotIndex];
+            slot.Setup(requirement.item, requirement.amount);
+            slot.SetInteractable(false);
+            slot.gameObject.SetActive(true);
+        }
     }
 
     private void MoveInsideInventory(Vector2Int dir)
